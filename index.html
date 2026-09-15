@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="y2k">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Günlüğüm</title>
+<meta name="description" content="Kişisel, şifreli günlük.">
+<meta name="theme-color" content="#ffd9ea">
+
+<!-- Sunucu basligi koyamadigimiz icin (GitHub Pages) CSP'yi meta ile veriyoruz.
+     Sifre isleyen bir uygulamada, enjekte edilmis betige karsi gercek bir savunma. -->
+<meta http-equiv="Content-Security-Policy" content="
+  default-src 'self';
+  connect-src 'self' https://api.anthropic.com;
+  img-src 'self' data: blob: https:;
+  media-src 'self' blob:;
+  font-src 'self';
+  style-src 'self' 'unsafe-inline';
+  frame-src https://www.youtube.com https://www.youtube-nocookie.com;
+  base-uri 'none';
+  form-action 'none';
+  object-src 'none'">
+
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="assets/img/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/img/icon-180.png">
+
+<link rel="preload" href="assets/fonts/caveat-400-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/quicksand-400-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/fonts/fonts.css">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/views.css">
+</head>
+<body>
+
+<!-- ===== KILIT EKRANI ===== -->
+<div class="lock" id="lock-screen">
+  <div class="lock__card" id="lock-card">
+    <div class="loading-row" style="justify-content:center">
+      <span class="spinner"></span> <span>açılıyor…</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== UYGULAMA ===== -->
+<div class="app hidden" id="app">
+
+  <header class="masthead">
+    <h1 class="masthead__title" id="blog-title">sevgili günlük</h1>
+    <p class="masthead__tagline" id="blog-tagline"></p>
+  </header>
+
+  <nav class="nav" aria-label="Bölümler">
+    <div class="nav__scroll" id="nav-links"></div>
+  </nav>
+
+  <div class="shell">
+    <main id="view" tabindex="-1"></main>
+    <aside class="sidebar" id="sidebar" aria-label="Kenar bölümü"></aside>
+  </div>
+
+  <footer class="footer">
+    <p>burası sadece senin. veriler bu cihazda, şifreli duruyor.</p>
+    <p><button class="btn btn--ghost btn--sm" id="lock-now">🔒 şimdi kilitle</button></p>
+  </footer>
+</div>
+
+<noscript>
+  <div style="padding:40px;text-align:center;font-family:sans-serif">
+    Bu günlük çalışmak için JavaScript'e ihtiyaç duyuyor.
+  </div>
+</noscript>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

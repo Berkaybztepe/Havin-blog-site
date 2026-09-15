@@ -1,0 +1,158 @@
+/* Tema degiskenleri. Her tema yalnizca bu degiskenleri degistirir;
+   bilesenler tema bilmez. Yeni tema eklemek = yeni bir blok. */
+
+:root {
+  --font-body: 'Quicksand', 'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-head: 'Caveat', 'Dancing Script', cursive;
+  --scale: 1;
+
+  --radius: 16px;
+  --radius-sm: 10px;
+  --gap: 16px;
+  --tap: 44px;               /* dokunma hedefi alt siniri */
+  --maxw: 1180px;
+
+  --ease: cubic-bezier(.22,.61,.36,1);
+}
+
+/* ---------- y2k · varsayilan ---------- */
+[data-theme='y2k'] {
+  --bg: #ffd9ea;
+  --bg-2: #cfe6ff;
+  --bg-image:
+    radial-gradient(circle at 12% 18%, rgba(255,255,255,.75) 0 2px, transparent 3px),
+    radial-gradient(circle at 78% 34%, rgba(255,255,255,.6) 0 2px, transparent 3px),
+    radial-gradient(circle at 44% 72%, rgba(255,255,255,.55) 0 2px, transparent 3px),
+    radial-gradient(circle at 88% 82%, rgba(255,255,255,.7) 0 2px, transparent 3px),
+    linear-gradient(155deg, #ffd9ea 0%, #ffc6e0 28%, #e3d4fb 62%, #cfe6ff 100%);
+  --bg-size: 180px 180px, 230px 230px, 160px 160px, 200px 200px, cover;
+
+  --panel: rgba(255,255,255,.86);
+  --panel-solid: #fff;
+  --ink: #4a2338;
+  --ink-soft: #8a5f75;
+  --accent: #e04f92;
+  --accent-2: #6aa9e8;
+  --accent-ink: #fff;
+  --line: #f3b9d3;
+  --shadow: 0 6px 0 rgba(224,79,146,.16), 0 10px 26px rgba(150,60,110,.14);
+  --chip: #ffe6f2;
+  --sidebar-head: linear-gradient(90deg, #ff9dc8, #b8a6f2);
+}
+
+/* ---------- toile · koyu, "dear elisa" ---------- */
+[data-theme='toile'] {
+  --bg: #26201c;
+  --bg-2: #18120f;
+  --bg-image:
+    radial-gradient(ellipse 60px 34px at 20% 22%, rgba(214,198,178,.09) 0 60%, transparent 62%),
+    radial-gradient(ellipse 44px 70px at 68% 58%, rgba(214,198,178,.07) 0 60%, transparent 62%),
+    radial-gradient(ellipse 50px 28px at 86% 14%, rgba(214,198,178,.06) 0 60%, transparent 62%),
+    linear-gradient(170deg, #2b241f 0%, #1d1714 60%, #15100e 100%);
+  --bg-size: 240px 240px, 300px 300px, 260px 260px, cover;
+
+  --panel: rgba(42,35,30,.9);
+  --panel-solid: #2a231e;
+  --ink: #ece1d2;
+  --ink-soft: #b3a291;
+  --accent: #c9a06a;
+  --accent-2: #8d6b4f;
+  --accent-ink: #201a15;
+  --line: #4a3d33;
+  --shadow: 0 8px 28px rgba(0,0,0,.45);
+  --chip: #3a302a;
+  --sidebar-head: linear-gradient(90deg, #6d5540, #3d3128);
+}
+
+/* ---------- tuscan · sicak sonbahar ---------- */
+[data-theme='tuscan'] {
+  --bg: #f3e3cc;
+  --bg-2: #e6c8a0;
+  --bg-image:
+    radial-gradient(circle at 30% 26%, rgba(180,120,60,.08) 0 70px, transparent 72px),
+    radial-gradient(circle at 74% 66%, rgba(150,100,50,.07) 0 90px, transparent 92px),
+    linear-gradient(160deg, #f7ecd9 0%, #eed9ba 55%, #dfc09a 100%);
+  --bg-size: 420px 420px, 520px 520px, cover;
+
+  --panel: rgba(255,250,240,.9);
+  --panel-solid: #fffaf0;
+  --ink: #4a3526;
+  --ink-soft: #8a7059;
+  --accent: #b5622f;
+  --accent-2: #7d8f5a;
+  --accent-ink: #fff;
+  --line: #ddc4a2;
+  --shadow: 0 5px 0 rgba(181,98,47,.12), 0 10px 24px rgba(120,80,40,.16);
+  --chip: #f4e3cb;
+  --sidebar-head: linear-gradient(90deg, #d08a52, #a87c4a);
+}
+
+/* ---------- cherry · kiraz kirmizisi ---------- */
+[data-theme='cherry'] {
+  --bg: #fff1f1;
+  --bg-2: #ffd6d6;
+  --bg-image:
+    radial-gradient(circle at 18% 24%, rgba(200,30,60,.07) 0 6px, transparent 8px),
+    radial-gradient(circle at 62% 58%, rgba(200,30,60,.06) 0 6px, transparent 8px),
+    linear-gradient(165deg, #fff6f5 0%, #ffe3e3 60%, #ffd0d4 100%);
+  --bg-size: 140px 140px, 190px 190px, cover;
+
+  --panel: rgba(255,255,255,.9);
+  --panel-solid: #fff;
+  --ink: #5a1f2a;
+  --ink-soft: #97616c;
+  --accent: #c8213c;
+  --accent-2: #4f8f5a;
+  --accent-ink: #fff;
+  --line: #f0bcc2;
+  --shadow: 0 5px 0 rgba(200,33,60,.13), 0 10px 24px rgba(160,40,60,.14);
+  --chip: #ffe1e5;
+  --sidebar-head: linear-gradient(90deg, #e8536c, #b8324a);
+}
+
+/* ---------- lace · krem dantel ---------- */
+[data-theme='lace'] {
+  --bg: #fbf6ee;
+  --bg-2: #f0e6d6;
+  --bg-image:
+    radial-gradient(circle at 25% 25%, rgba(190,165,130,.10) 0 3px, transparent 5px),
+    radial-gradient(circle at 75% 75%, rgba(190,165,130,.08) 0 3px, transparent 5px),
+    linear-gradient(170deg, #fdfaf4 0%, #f5eee2 100%);
+  --bg-size: 60px 60px, 60px 60px, cover;
+
+  --panel: rgba(255,253,248,.93);
+  --panel-solid: #fffdf8;
+  --ink: #493c2e;
+  --ink-soft: #8b7862;
+  --accent: #a8574e;
+  --accent-2: #8a7b5e;
+  --accent-ink: #fff;
+  --line: #e2d5bf;
+  --shadow: 0 4px 0 rgba(168,87,78,.10), 0 8px 22px rgba(120,100,70,.12);
+  --chip: #f4ebdb;
+  --sidebar-head: linear-gradient(90deg, #c08a7f, #9c8b6c);
+}
+
+/* ---------- midnight · agir gunler ---------- */
+[data-theme='midnight'] {
+  --bg: #121828;
+  --bg-2: #0b0f1a;
+  --bg-image:
+    radial-gradient(circle at 20% 16%, rgba(255,255,255,.10) 0 1.4px, transparent 2.4px),
+    radial-gradient(circle at 70% 40%, rgba(255,255,255,.08) 0 1.2px, transparent 2.2px),
+    radial-gradient(circle at 42% 78%, rgba(255,255,255,.07) 0 1.2px, transparent 2.2px),
+    linear-gradient(180deg, #1a2238 0%, #121828 55%, #0a0e18 100%);
+  --bg-size: 200px 200px, 260px 260px, 180px 180px, cover;
+
+  --panel: rgba(28,36,56,.9);
+  --panel-solid: #1c2438;
+  --ink: #dce4f5;
+  --ink-soft: #92a0bd;
+  --accent: #8ba8e8;
+  --accent-2: #b89ae0;
+  --accent-ink: #10162a;
+  --line: #33405e;
+  --shadow: 0 8px 30px rgba(0,0,0,.5);
+  --chip: #26314b;
+  --sidebar-head: linear-gradient(90deg, #4a5c8c, #2e3a5a);
+}

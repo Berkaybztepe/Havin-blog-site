@@ -1,0 +1,93 @@
+/* Temel sifirlama, tipografi ve Turkce'ye uygun varsayilanlar. */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  font-family: var(--font-body);
+  font-size: calc(16px * var(--scale));
+  line-height: 1.65;
+  color: var(--user-ink, var(--ink));
+  background-color: var(--bg);
+  background-image: var(--bg-image);
+  background-size: var(--bg-size);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+  overflow-wrap: break-word;
+}
+
+body.modal-open { overflow: hidden; }
+
+h1, h2, h3, h4 {
+  font-family: var(--font-head);
+  font-weight: 700;
+  line-height: 1.15;
+  margin: 0 0 .4em;
+  color: var(--user-ink, var(--ink));
+}
+
+h1 { font-size: 2.6rem; }
+h2 { font-size: 1.9rem; }
+h3 { font-size: 1.45rem; }
+h4 { font-size: 1.15rem; font-family: var(--font-body); font-weight: 700; }
+
+p { margin: 0 0 1em; }
+a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+img { max-width: 100%; height: auto; display: block; }
+hr { border: 0; border-top: 1px dashed var(--line); margin: 1.4em 0; }
+
+blockquote {
+  margin: 1em 0;
+  padding: .6em 1.1em;
+  border-left: 3px solid var(--accent);
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-style: italic;
+}
+
+code, pre { font-family: 'Courier New', ui-monospace, monospace; font-size: .92em; }
+
+small, .muted { color: var(--ink-soft); }
+.muted { font-size: .92rem; }
+.center { text-align: center; }
+.nowrap { white-space: nowrap; }
+.hidden { display: none !important; }
+
+/* Turkce buyuk harf: tarayici lang="tr" ile i -> Ä° donusumunu dogru yapar */
+.upper { text-transform: uppercase; letter-spacing: .06em; }
+
+::selection { background: color-mix(in srgb, var(--accent) 35%, transparent); }
+
+/* Odak gorunurlugu — klavye ve ekran okuyucu icin sart */
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Hareketi azalt tercihi */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Yazi tipi yardimci siniflari — gunluk yazilarinda kullaniliyor */
+.f-caveat   { font-family: 'Caveat', cursive; }
+.f-dancing  { font-family: 'Dancing Script', cursive; }
+.f-shadows  { font-family: 'Shadows Into Light', cursive; }
+.f-indie    { font-family: 'Indie Flower', cursive; }
+.f-gloria   { font-family: 'Gloria Hallelujah', cursive; }
+.f-playfair { font-family: 'Playfair Display', Georgia, serif; }
+.f-cormorant{ font-family: 'Cormorant Garamond', Georgia, serif; }
+.f-quicksand{ font-family: 'Quicksand', sans-serif; }
+.f-nunito   { font-family: 'Nunito', sans-serif; }
