@@ -13,7 +13,7 @@ body {
   min-height: 100dvh;
   font-family: var(--font-body);
   font-size: calc(16px * var(--scale));
-  line-height: 1.65;
+  line-height: 1.7;
   color: var(--user-ink, var(--ink));
   background-color: var(--bg);
   background-image: var(--bg-image);
@@ -27,16 +27,16 @@ body.modal-open { overflow: hidden; }
 
 h1, h2, h3, h4 {
   font-family: var(--font-head);
-  font-weight: 700;
-  line-height: 1.15;
-  margin: 0 0 .4em;
+  font-weight: 400;
+  line-height: 1.25;
+  margin: 0 0 .5em;
   color: var(--user-ink, var(--ink));
 }
 
-h1 { font-size: 2.6rem; }
-h2 { font-size: 1.9rem; }
-h3 { font-size: 1.45rem; }
-h4 { font-size: 1.15rem; font-family: var(--font-body); font-weight: 700; }
+h1 { font-size: 2.1rem; font-weight: 400; letter-spacing: -.01em; }
+h2 { font-size: 1.55rem; font-weight: 400; }
+h3 { font-size: 1.2rem; font-weight: 500; }
+h4 { font-size: 1rem; font-family: var(--font-body); font-weight: 600; }
 
 p { margin: 0 0 1em; }
 a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 3px; }
@@ -44,12 +44,11 @@ img { max-width: 100%; height: auto; display: block; }
 hr { border: 0; border-top: 1px dashed var(--line); margin: 1.4em 0; }
 
 blockquote {
-  margin: 1em 0;
-  padding: .6em 1.1em;
-  border-left: 3px solid var(--accent);
-  background: color-mix(in srgb, var(--accent) 7%, transparent);
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  margin: 1.2em 0;
+  padding: .2em 0 .2em 1.2em;
+  border-left: 2px solid var(--line);
   font-style: italic;
+  color: var(--ink-soft);
 }
 
 code, pre { font-family: 'Courier New', ui-monospace, monospace; font-size: .92em; }
@@ -82,6 +81,8 @@ small, .muted { color: var(--ink-soft); }
 }
 
 /* Yazi tipi yardimci siniflari — gunluk yazilarinda kullaniliyor */
+.f-inter     { font-family: 'Inter', sans-serif; }
+.f-newsreader{ font-family: 'Newsreader', Georgia, serif; }
 .f-caveat   { font-family: 'Caveat', cursive; }
 .f-dancing  { font-family: 'Dancing Script', cursive; }
 .f-shadows  { font-family: 'Shadows Into Light', cursive; }

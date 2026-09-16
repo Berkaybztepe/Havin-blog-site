@@ -2,16 +2,16 @@
 // Her oneri bir "ne yapabilirim" onerisiyle birlikte gelir; kuru bir liste degil.
 
 export const CATEGORIES = [
-  { id: 'okuma',   label: 'okuma',        emoji: '📖' },
-  { id: 'sanat',   label: 'sanat',        emoji: '🎨' },
-  { id: 'muzik',   label: 'müzik',        emoji: '🎧' },
-  { id: 'film',    label: 'film',         emoji: '🎬' },
-  { id: 'zihin',   label: 'zihin',        emoji: '🧠' },
-  { id: 'beden',   label: 'beden',        emoji: '🤍' },
-  { id: 'sosyal',  label: 'sosyal',       emoji: '💌' },
-  { id: 'beceri',  label: 'beceri',       emoji: '✂️' },
-  { id: 'yalniz',  label: 'yalnız vakit', emoji: '🌙' },
-  { id: 'dunya',   label: 'dünya',        emoji: '🗺️' },
+  { id: 'okuma',   label: 'okuma' },
+  { id: 'sanat',   label: 'sanat' },
+  { id: 'muzik',   label: 'müzik' },
+  { id: 'film',    label: 'film' },
+  { id: 'zihin',   label: 'zihin' },
+  { id: 'beden',   label: 'beden' },
+  { id: 'sosyal',  label: 'sosyal' },
+  { id: 'beceri',  label: 'beceri' },
+  { id: 'yalniz',  label: 'yalnız vakit' },
+  { id: 'dunya',   label: 'dünya' },
 ];
 
 export const SUGGESTIONS = [
@@ -121,4 +121,4 @@ export function pickSuggestions(n = 3, category = null, exclude = []) {
   return out;
 }
 
-export const categoryOf = (id) => CATEGORIES.find((c) => c.id === id) || { label: id, emoji: '•' };
+export const categoryOf = (id) => CATEGORIES.find((c) => c.id === id) || { label: id };

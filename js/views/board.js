@@ -291,7 +291,7 @@ export default {
     clear(host).append(
       el('div', { class: 'card card--tight' },
         el('div', { class: 'btn-row' },
-          el('button', { class: 'btn btn--sm btn--primary', onClick: () => fileInput.click() }, '🖼 fotoğraf'),
+          el('button', { class: 'btn btn--sm btn--primary', onClick: () => fileInput.click() }, 'fotoğraf'),
           el('button', {
             class: 'btn btn--sm',
             onClick: () => {
@@ -300,12 +300,12 @@ export default {
                 body: stickerPicker(async (s) => { await addItem({ type: 'sticker', stickerId: s.id, w: 130, h: 130 }); m.close(); }),
               });
             },
-          }, '🎀 çıkartma'),
+          }, 'çıkartma'),
           el('button', {
             class: 'btn btn--sm',
             onClick: () => addItem({ type: 'note', text: 'buraya yaz…', w: 220, h: 200 }),
-          }, '📝 not'),
-          el('button', { class: 'btn btn--sm', onClick: addFromURL }, '🔗 bağlantıdan'),
+          }, 'not'),
+          el('button', { class: 'btn btn--sm', onClick: addFromURL }, 'bağlantıdan'),
           fileInput),
         el('p', { class: 'field__hint', style: { marginTop: '8px' } },
           'Öğeye dokun: köşelerde boyutlandırma, döndürme ve silme düğmeleri çıkar. Nota çift dokunarak yazısını değiştir.')),

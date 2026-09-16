@@ -54,7 +54,6 @@ function setupForm(host, onUnlocked) {
     btn);
 
   clear(host).append(
-    el('div', { style: { fontSize: '2.6rem' } }, '🎀'),
     el('h1', { class: 'lock__title' }, 'merhaba'),
     el('p', { class: 'muted' }, 'burası sadece senin olacak. bir şifre belirle; ' +
       'yazdığın her şey bu cihazda, şifreli olarak duracak.'),
@@ -102,7 +101,7 @@ function showRecoveryCode(code, onUnlocked) {
             try { await navigator.clipboard.writeText(code); toast('Kod kopyalandı.'); }
             catch { toast('Kopyalanamadı, elle yaz.', 'warn'); }
           },
-        }, '📋 kopyala')),
+        }, 'kopyala')),
       el('label', { class: 'switch', style: { marginTop: '14px' } },
         check, el('span', { class: 'switch__track' }),
         el('span', {}, 'kodu bir yere yazdım')),
@@ -149,7 +148,6 @@ async function unlockForm(host, onUnlocked) {
     btn);
 
   clear(host).append(
-    el('div', { style: { fontSize: '2.4rem' } }, '🔒'),
     el('h1', { class: 'lock__title' }, username ? `merhaba ${username}` : 'merhaba'),
     el('p', { class: 'muted' }, 'günlüğün kilitli.'),
     form,

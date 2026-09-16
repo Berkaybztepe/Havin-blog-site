@@ -8,11 +8,11 @@
 //   - Bir atagi "basarisizlik" olarak degil, bir bilgi olarak ele alir.
 
 export const ENTRY_KINDS = [
-  { id: 'his',    label: 'bir his',            emoji: '🤍' },
-  { id: 'atak',   label: 'yeme atağı',         emoji: '🌊' },
-  { id: 'beden',  label: 'bedenimle ilgili',   emoji: '🪞' },
-  { id: 'yemek',  label: 'yemekle ilgili',     emoji: '🍋' },
-  { id: 'iyi',    label: 'iyi giden bir şey',  emoji: '🌱' },
+  { id: 'his',    label: 'bir his' },
+  { id: 'atak',   label: 'yeme atağı' },
+  { id: 'beden',  label: 'bedenimle ilgili' },
+  { id: 'yemek',  label: 'yemekle ilgili' },
+  { id: 'iyi',    label: 'iyi giden bir şey' },
 ];
 
 /** Atak sonrasi: once sakinlestir, sonra merak et. Asla once analiz etme. */

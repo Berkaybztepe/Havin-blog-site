@@ -16,6 +16,8 @@ const CATEGORIES = [
 ];
 
 const FONTS = [
+  { id: 'Inter', label: 'Inter (sade)' },
+  { id: 'Newsreader', label: 'Newsreader (serif)' },
   { id: 'Caveat', label: 'Caveat (el yazısı)' },
   { id: 'Dancing Script', label: 'Dancing Script' },
   { id: 'Shadows Into Light', label: 'Shadows Into Light' },
@@ -49,7 +51,6 @@ async function renderList(host) {
     clear(listBox);
     if (!shown.length) {
       listBox.append(el('div', { class: 'card empty' },
-        el('span', { class: 'empty__icon' }, '📔'),
         el('p', {}, posts.length ? 'Bu aramaya uyan yazı yok.' : 'Henüz hiç yazmadın.'),
         !posts.length ? el('button', {
           class: 'btn btn--primary', onClick: () => openEditor(host, null),
@@ -77,7 +78,7 @@ async function renderList(host) {
     el('div', { class: 'card card--tight' },
       el('div', { class: 'filter-bar', style: { marginBottom: '10px' } },
         search,
-        el('button', { class: 'btn btn--primary', onClick: () => openEditor(host, null) }, '✎ yeni yazı')),
+        el('button', { class: 'btn btn--primary', onClick: () => openEditor(host, null) }, 'yeni yazı')),
       catChips),
     listBox);
 
@@ -147,7 +148,7 @@ async function openReader(host, id) {
       (post.tags || []).length ? el('div', { class: 'tag-list', style: { marginTop: '16px' } },
         post.tags.map((t) => el('span', { class: 'chip' }, '#' + t))) : null,
       el('div', { class: 'btn-row', style: { marginTop: '18px' } },
-        el('button', { class: 'btn', onClick: () => openEditor(host, id) }, '✎ düzenle'))));
+        el('button', { class: 'btn', onClick: () => openEditor(host, id) }, 'düzenle'))));
 
   if (cleanup) cleanup();
   cleanup = await hydrate(bodyEl);
@@ -261,7 +262,7 @@ async function openEditor(host, id) {
       onMousedown: (e) => e.preventDefault(), onClick: () => exec('insertHorizontalRule'),
     }, '―'),
     el('span', { class: 'toolbar__sep' }),
-    el('button', { class: 'toolbar__btn', type: 'button', title: 'fotoğraf ekle', onClick: () => fileInput.click() }, '🖼'),
+    el('button', { class: 'toolbar__btn', type: 'button', title: 'fotoğraf ekle', onClick: () => fileInput.click() }, 'fotoğraf'),
     el('button', {
       class: 'toolbar__btn', type: 'button', title: 'çıkartma ekle',
       onClick: () => {
@@ -274,7 +275,7 @@ async function openEditor(host, id) {
           }),
         });
       },
-    }, '🎀'),
+    }, 'çıkartma'),
     el('button', {
       class: 'toolbar__btn', type: 'button', title: 'YouTube ekle',
       onClick: () => {
@@ -293,7 +294,7 @@ async function openEditor(host, id) {
           }],
         });
       },
-    }, '▶'),
+    }, 'video'),
     el('button', {
       class: 'toolbar__btn', type: 'button', title: 'bağlantı ekle',
       onMousedown: (e) => e.preventDefault(),
@@ -301,7 +302,7 @@ async function openEditor(host, id) {
         const u = prompt('Bağlantı adresi:');
         if (u) exec('createLink', u);
       },
-    }, '🔗'),
+    }, 'bağlantı'),
     fileInput);
 
   const save = async () => {
@@ -333,7 +334,7 @@ async function openEditor(host, id) {
         el('div', {}, el('label', { class: 'field__label' }, 'kategori'), cat),
         el('div', {}, el('label', { class: 'field__label' }, 'ruh hâli'), moodSel)),
       el('details', { style: { margin: '12px 0' } },
-        el('summary', { style: { cursor: 'pointer', fontWeight: '700', minHeight: '38px' } }, '🎨 bu yazının görünümü'),
+        el('summary', { style: { cursor: 'pointer', fontWeight: '700', minHeight: '38px' } }, 'bu yazının görünümü'),
         el('div', { class: 'row', style: { marginTop: '10px' } },
           el('div', {}, el('label', { class: 'field__label' }, 'yazı tipi'), fontSel),
           el('div', {}, el('label', { class: 'field__label' }, 'boyut'), sizeInput),
@@ -345,7 +346,7 @@ async function openEditor(host, id) {
       editor,
       el('div', { class: 'field', style: { marginTop: '12px' } }, tags),
       el('div', { class: 'btn-row btn-row--end' },
-        el('button', { class: 'btn btn--primary', onClick: save }, '💾 kaydet'))));
+        el('button', { class: 'btn btn--primary', onClick: save }, 'kaydet'))));
 
   hydrate(editor);
   title.focus();

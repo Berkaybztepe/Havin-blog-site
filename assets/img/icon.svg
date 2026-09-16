@@ -1,23 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#ffc6e0"/><stop offset=".55" stop-color="#e3d4fb"/><stop offset="1" stop-color="#cfe6ff"/>
-    </linearGradient>
-  </defs>
-  <rect width="512" height="512" rx="112" fill="url(#g)"/>
-  <g fill="#fff" opacity=".75">
-    <circle cx="96" cy="104" r="7"/><circle cx="416" cy="150" r="6"/>
-    <circle cx="140" cy="404" r="6"/><circle cx="392" cy="392" r="7"/>
-  </g>
-  <!-- defter -->
-  <rect x="128" y="120" width="256" height="280" rx="22" fill="#fffdf9" stroke="#e04f92" stroke-width="12"/>
-  <g stroke="#f3b9d3" stroke-width="10" stroke-linecap="round">
-    <path d="M176 200h160M176 248h160M176 296h104"/>
-  </g>
-  <!-- fiyonk -->
-  <g transform="translate(256 120) scale(1.5)" fill="#ef7fa4" stroke="#c4396a" stroke-width="5" stroke-linejoin="round">
-    <path d="M0 0 C-16 -22, -44 -22, -42 -2 C-40 17, -14 13, 0 0 Z"/>
-    <path d="M0 0 C16 -22, 44 -22, 42 -2 C40 17, 14 13, 0 0 Z"/>
-    <circle cx="0" cy="0" r="9" fill="#e0416a"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="içimden">
+  <rect width="512" height="512" rx="114" fill="#f2efe9"/>
+  <g fill="none" stroke="#a2624a" stroke-width="19" stroke-linecap="round">
+    <path d="M112 182 Q 196 156 280 182 T 404 174"/>
+    <path d="M112 262 Q 204 236 296 262 T 404 254"/>
+    <path d="M112 342 Q 176 320 240 342"/>
   </g>
 </svg>

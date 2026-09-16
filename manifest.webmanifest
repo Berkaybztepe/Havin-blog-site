@@ -1,13 +1,13 @@
 {
-  "name": "Günlüğüm",
-  "short_name": "Günlük",
+  "name": "içimden",
+  "short_name": "içimden",
   "description": "Kişisel, şifreli günlük.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#ffd9ea",
-  "theme_color": "#ffd9ea",
+  "background_color": "#f7f5f1",
+  "theme_color": "#f7f5f1",
   "lang": "tr",
   "dir": "ltr",
   "icons": [

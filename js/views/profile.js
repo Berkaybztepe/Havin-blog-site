@@ -26,7 +26,7 @@ const view = {
     // --- fotograf ---
     // Fotograf dugumu, DOM'a eklenmeden ONCE secilmeli: heniz ebeveyni olmayan
     // bir dugumde replaceWith() sessizce hicbir sey yapmiyor.
-    let photo = el('div', { class: 'profile-photo' }, '🎀');
+    let photo = el('div', { class: 'profile-photo' });
     if (profile.photoId) {
       try {
         const blob = await repo.loadImage(profile.photoId);
@@ -124,7 +124,7 @@ const view = {
       for (const s of list) {
         const c = categoryOf(s.c);
         suggBox.append(el('div', { class: 'suggestion' },
-          el('div', { class: 'suggestion__cat' }, `${c.emoji} ${c.label}`),
+          el('div', { class: 'suggestion__cat' }, c.label),
           el('div', { class: 'suggestion__title' }, s.t),
           el('p', { class: 'suggestion__desc' }, s.d),
           el('button', {
@@ -136,14 +136,14 @@ const view = {
               drawPins();
               toast('Panona eklendi.');
             },
-          }, '📌 panoma ekle')));
+          }, 'panoma ekle')));
       }
     };
     drawSuggestions(pickSuggestions(3));
 
     const catFilter = el('div', { class: 'tag-list', style: { marginBottom: '12px' } },
       el('button', { class: 'chip-btn is-on', dataset: { c: '' } }, 'karışık'),
-      CATEGORIES.map((c) => el('button', { class: 'chip-btn', dataset: { c: c.id } }, `${c.emoji} ${c.label}`)));
+      CATEGORIES.map((c) => el('button', { class: 'chip-btn', dataset: { c: c.id } }, c.label)));
     catFilter.addEventListener('click', (e) => {
       const b = e.target.closest('.chip-btn');
       if (!b) return;
@@ -213,7 +213,7 @@ const view = {
           clear(aiBox).append(el('div', { class: 'note note--warn' }, e.message || 'Alınamadı.'));
         } finally { aiBtn.disabled = false; }
       },
-    }, '✨ bana özel öneri iste');
+    }, 'bana özel öneri iste');
 
     clear(host).append(
       el('div', { class: 'card' },
@@ -222,11 +222,11 @@ const view = {
           el('div', { style: { flex: '1 1 220px' } },
             el('label', { class: 'field__label' }, 'adım'), nameInput,
             el('button', { class: 'btn btn--sm btn--ghost', style: { marginTop: '8px' }, onClick: () => photoInput.click() },
-              '📷 fotoğraf seç'))),
+              'fotoğraf seç'))),
         photoInput,
         el('div', { style: { marginTop: '18px' } }, fieldCards),
         el('div', { class: 'btn-row btn-row--end' },
-          el('button', { class: 'btn btn--primary', onClick: saveProfile }, '💾 kaydet'))),
+          el('button', { class: 'btn btn--primary', onClick: saveProfile }, 'kaydet'))),
 
       el('div', { class: 'card' },
         el('div', { class: 'card__head' },
@@ -239,7 +239,7 @@ const view = {
       el('div', { class: 'card' },
         el('h3', {}, 'bugünün önerisi'),
         el('div', { class: 'suggestion' },
-          el('div', { class: 'suggestion__cat' }, `${categoryOf(daily.c).emoji} ${categoryOf(daily.c).label}`),
+          el('div', { class: 'suggestion__cat' }, categoryOf(daily.c).label),
           el('div', { class: 'suggestion__title' }, daily.t),
           el('p', { class: 'suggestion__desc' }, daily.d),
           el('button', {
@@ -251,7 +251,7 @@ const view = {
               drawPins();
               toast('Panona eklendi.');
             },
-          }, '📌 panoma ekle'))),
+          }, 'panoma ekle'))),
 
       el('div', { class: 'card' },
         el('div', { class: 'card__head' },
@@ -259,13 +259,13 @@ const view = {
           el('button', {
             class: 'btn btn--sm',
             onClick: () => drawSuggestions(pickSuggestions(3, shownCat || null)),
-          }, '🔀 başka göster')),
+          }, 'başka göster')),
         el('p', { class: 'muted' }, `${SUGGESTIONS.length} öneri arasından seçiyorum. bir kategori seçebilirsin.`),
         catFilter,
         suggBox),
 
       el('div', { class: 'card' },
-        el('h3', {}, '📌 panom'),
+        el('h3', {}, 'panom'),
         el('p', { class: 'muted' }, 'yapmak istediklerin ve haklarında yazdıkların.'),
         pinBox));
   },

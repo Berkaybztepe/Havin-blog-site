@@ -42,7 +42,7 @@ export default {
       else drawFeelings();
     };
 
-    for (const [id, label] of [['mutfak', '🍓 mutfak'], ['hareket', '🏃 hareket'], ['duygu', '🤍 duygu & destek']]) {
+    for (const [id, label] of [['mutfak', 'mutfak'], ['hareket', 'hareket'], ['duygu', 'duygu & destek']]) {
       tabs.append(el('button', { class: 'tab', dataset: { t: id }, onClick: () => setTab(id) }, label));
     }
 
@@ -72,7 +72,7 @@ export default {
           return;
         }
         for (const m of meals) {
-          const thumb = el('div', { class: 'meal__thumb', style: { display: 'grid', placeItems: 'center', fontSize: '1.6rem' } }, '🍽');
+          const thumb = el('div', { class: 'meal__thumb' });
           const row = el('div', { class: 'meal' },
             thumb,
             el('div', { class: 'meal__main' },
@@ -207,7 +207,7 @@ export default {
           el('div', { class: 'field', style: { marginTop: '12px' } },
             el('label', { class: 'field__label' }, 'fotoğraf'), photoInput, preview),
           el('button', { class: 'btn btn--primary btn--block', style: { marginTop: '10px' }, onClick: analyze },
-            '✨ fotoğraftan hesapla'),
+            'fotoğraftan hesapla'),
           !settings.apiKey ? el('p', { class: 'field__hint' },
             'API anahtarı eklersen fotoğraftan otomatik hesaplayabilirim. Anahtarsız da aşağıdan elle girebilirsin.') : null,
           aiBox,
@@ -391,7 +391,7 @@ export default {
     // ===================== DUYGU & DESTEK =====================
     async function drawFeelings() {
       const kind = el('select', { class: 'select' },
-        ENTRY_KINDS.map((k) => el('option', { value: k.id }, `${k.emoji} ${k.label}`)));
+        ENTRY_KINDS.map((k) => el('option', { value: k.id }, k.label)));
       const text = el('textarea', { class: 'textarea', style: { minHeight: '130px' }, placeholder: 'ne oldu? ne hissediyorsun? burada kimse okumuyor.' });
       const replyBox = el('div', {});
       const listBox = el('div', {});
@@ -405,7 +405,7 @@ export default {
           listBox.append(el('div', { class: 'card card--tight card--flat', style: { marginBottom: '8px' } },
             el('div', { class: 'card__head' },
               el('div', { class: 'muted', style: { fontSize: '.82rem' } },
-                `${k ? k.emoji + ' ' + k.label : ''} · ${formatDateTR(f.date)}`),
+                `${k ? k.label : ''} · ${formatDateTR(f.date)}`),
               el('div', { class: 'btn-row' },
                 el('button', {
                   class: 'btn btn--sm btn--ghost',
@@ -456,7 +456,7 @@ export default {
           el('div', { class: 'field' }, el('label', { class: 'field__label' }, 'ne hakkında?'), kind),
           text,
           el('div', { class: 'btn-row btn-row--end' },
-            el('button', { class: 'btn btn--primary', onClick: send }, '🤍 kaydet ve karşılık al')),
+            el('button', { class: 'btn btn--primary', onClick: send }, 'kaydet ve karşılık al')),
           replyBox),
 
         el('div', { class: 'card' },

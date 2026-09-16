@@ -11,16 +11,18 @@ import { testKey } from '../ai/client.js';
 import { passwordStrength } from '../core/crypto.js';
 
 const THEMES = [
-  { id: 'y2k', name: '2000ler pembe', c1: '#ffc6e0', c2: '#cfe6ff' },
-  { id: 'toile', name: 'koyu toile', c1: '#2b241f', c2: '#c9a06a' },
-  { id: 'tuscan', name: 'toskana', c1: '#eed9ba', c2: '#b5622f' },
-  { id: 'cherry', name: 'kiraz', c1: '#ffe3e3', c2: '#c8213c' },
-  { id: 'lace', name: 'krem dantel', c1: '#f5eee2', c2: '#a8574e' },
-  { id: 'midnight', name: 'gece', c1: '#1a2238', c2: '#8ba8e8' },
+  { id: 'sade',   name: 'sade',        c1: '#f7f5f1', c2: '#a2624a' },
+  { id: 'lace',   name: 'krem dantel', c1: '#fbf8f2', c2: '#a8574e' },
+  { id: 'tuscan', name: 'toskana',     c1: '#f4ece0', c2: '#b5622f' },
+  { id: 'cherry', name: 'kiraz',       c1: '#fdf4f3', c2: '#b52a41' },
+  { id: 'toile',  name: 'koyu toile',  c1: '#26201c', c2: '#c9a06a' },
+  { id: 'gece',   name: 'gece',        c1: '#15181f', c2: '#8fa6c9' },
+  { id: 'y2k',    name: "2000'ler",    c1: '#ffeaf3', c2: '#d4467f' },
 ];
 
-const FONTS = ['Quicksand', 'Nunito', 'Caveat', 'Dancing Script', 'Shadows Into Light',
-  'Indie Flower', 'Gloria Hallelujah', 'Playfair Display', 'Cormorant Garamond'];
+const FONTS = ['Inter', 'Newsreader', 'Quicksand', 'Nunito',
+  'Playfair Display', 'Cormorant Garamond',
+  'Caveat', 'Dancing Script', 'Shadows Into Light', 'Indie Flower', 'Gloria Hallelujah'];
 
 const fmtBytes = (n) => {
   if (!n) return '0 B';
@@ -51,7 +53,8 @@ export default {
           btn.classList.add('is-on');
         },
       },
-        el('span', { class: 'theme-card__swatch', style: { background: `linear-gradient(135deg, ${t.c1}, ${t.c2})` } }),
+        el('span', { class: 'theme-card__swatch', style: { background: t.c1 } },
+          el('span', { class: 'theme-card__dot', style: { background: t.c2 } })),
         el('span', { class: 'theme-card__name' }, t.name))));
 
     const fontBody = el('select', { class: 'select' },
@@ -59,9 +62,9 @@ export default {
     const fontHead = el('select', { class: 'select' },
       FONTS.map((f) => el('option', { value: f, selected: f === s.fontHeading }, f)));
     const fontScale = el('input', { class: 'input', type: 'range', min: '0.85', max: '1.4', step: '0.05', value: String(s.fontScale) });
-    const inkColor = el('input', { class: 'input', type: 'color', value: s.textColor || '#4a2338' });
+    const inkColor = el('input', { class: 'input', type: 'color', value: s.textColor || '#23201c' });
     const useInk = el('input', { type: 'checkbox', checked: !!s.textColor });
-    const accentColor = el('input', { class: 'input', type: 'color', value: s.accent || '#e04f92' });
+    const accentColor = el('input', { class: 'input', type: 'color', value: s.accent || '#a2624a' });
     const useAccent = el('input', { type: 'checkbox', checked: !!s.accent });
 
     const applyAppearance = async () => {
@@ -210,7 +213,7 @@ export default {
     clear(host).append(
       // gorunum
       el('div', { class: 'card' },
-        el('h3', {}, '🎨 görünüm'),
+        el('h3', {}, 'görünüm'),
         el('label', { class: 'field__label' }, 'tema'),
         themeGrid,
         el('div', { class: 'row', style: { marginTop: '16px' } },
@@ -228,7 +231,7 @@ export default {
 
       // baslik
       el('div', { class: 'card' },
-        el('h3', {}, '✎ günlüğümün başlığı'),
+        el('h3', {}, 'günlüğümün başlığı'),
         el('div', { class: 'field' }, el('label', { class: 'field__label' }, 'başlık'), blogTitle),
         el('div', { class: 'field' }, el('label', { class: 'field__label' }, 'alt yazı'), blogTagline),
         el('div', { class: 'btn-row btn-row--end' },
@@ -236,13 +239,13 @@ export default {
 
       // widgetlar
       el('div', { class: 'card' },
-        el('h3', {}, '🧩 kenar bölümü'),
+        el('h3', {}, 'kenar bölümü'),
         el('p', { class: 'muted' }, 'hangi kutucuklar görünsün ve hangi sırada.'),
         widgetBox),
 
       // yapay zeka
       el('div', { class: 'card' },
-        el('h3', {}, '✨ yapay zeka'),
+        el('h3', {}, 'yapay zeka'),
         el('p', { class: 'muted' },
           'Anahtar eklersen: yemek fotoğrafından kalori/makro tahmini, duygusal destek ve gün planı açılır. ' +
           'Anahtar olmadan da her şey çalışır — sadece bunlar hazır kütüphaneden gelir.'),
@@ -261,7 +264,7 @@ export default {
 
       // guvenlik
       el('div', { class: 'card' },
-        el('h3', {}, '🔒 güvenlik'),
+        el('h3', {}, 'güvenlik'),
         el('div', { class: 'field' },
           el('label', { class: 'field__label' }, 'şu kadar hareketsizlikten sonra kilitle'), autoLock),
         el('div', { class: 'btn-row' },
@@ -279,7 +282,7 @@ export default {
 
       // yedekleme
       el('div', { class: 'card' },
-        el('h3', {}, '💾 yedekleme'),
+        el('h3', {}, 'yedekleme'),
         el('div', { class: 'note note--warn' },
           'Verin yalnızca bu cihazda. Telefonunu değiştirirsen, uygulamayı silersen ya da tarayıcı ' +
           'verileri temizlenirse günlüğün gider. Düzenli yedek al — başka cihaza taşımanın da yolu bu.'),

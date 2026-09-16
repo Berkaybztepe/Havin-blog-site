@@ -120,7 +120,7 @@ export default {
           el('button', {
             class: 'btn btn--sm',
             onClick: () => setAffirm(randomAffirmation(mood, currentText).t),
-          }, '🔀 başka bir tane'),
+          }, 'başka bir tane'),
           el('button', {
             class: 'btn btn--sm',
             onClick: async () => {
@@ -130,7 +130,7 @@ export default {
               drawFavs();
               toast('Kaydedildi.');
             },
-          }, '🤍 kaydet'),
+          }, 'kaydet'),
           el('button', {
             class: 'btn btn--sm btn--ghost',
             onClick: () => {
@@ -152,7 +152,7 @@ export default {
                 }],
               });
             },
-          }, '✎ kendim yazayım'))),
+          }, 'kendim yazayım'))),
 
       el('div', { class: 'card' },
         el('h3', {}, 'bugün için küçük bir tören'),
@@ -163,7 +163,7 @@ export default {
             const p = e.currentTarget.previousElementSibling;
             p.textContent = RITUALS[Math.floor(Math.random() * RITUALS.length)];
           },
-        }, '🔀 başka bir öneri')),
+        }, 'başka bir öneri')),
 
       el('div', { class: 'card' },
         el('div', { class: 'card__head' },

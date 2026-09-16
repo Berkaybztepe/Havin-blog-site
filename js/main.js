@@ -18,13 +18,13 @@ import settings from './views/settings.js';
 
 // --- gezinme ---------------------------------------------------------------
 const NAV = [
-  { id: 'gunluk',   label: 'günlük',   icon: '📔' },
-  { id: 'profil',   label: 'profilim', icon: '🎀' },
-  { id: 'olumlama', label: 'olumlama', icon: '🕊️' },
-  { id: 'pano',     label: 'pano',     icon: '📌' },
-  { id: 'plan',     label: 'planlayıcı', icon: '🗓️' },
-  { id: 'beden',    label: 'beden & mutfak', icon: '🍓' },
-  { id: 'ayarlar',  label: 'ayarlar',  icon: '⚙️' },
+  { id: 'gunluk',   label: 'günlük' },
+  { id: 'profil',   label: 'profilim' },
+  { id: 'olumlama', label: 'olumlama' },
+  { id: 'pano',     label: 'pano' },
+  { id: 'plan',     label: 'planlayıcı' },
+  { id: 'beden',    label: 'beden & mutfak' },
+  { id: 'ayarlar',  label: 'ayarlar' },
 ];
 
 function buildNav() {
@@ -32,7 +32,7 @@ function buildNav() {
   for (const item of NAV) {
     host.append(el('a', {
       class: 'nav__link', href: `#/${item.id}`, dataset: { route: item.id },
-    }, el('span', { class: 'ico' }, item.icon), item.label));
+    }, item.label));
   }
 }
 
@@ -48,9 +48,9 @@ async function enterApp() {
   applyLook(lookFromSettings(s));
   session.setAutoLockMinutes(s.autoLockMinutes);
 
-  $('#blog-title').textContent = s.blogTitle || 'sevgili günlük';
+  $('#blog-title').textContent = s.blogTitle || 'içimden';
   $('#blog-tagline').textContent = s.blogTagline || '';
-  document.title = (s.blogTitle || 'Günlüğüm');
+  document.title = (s.blogTitle || 'içimden');
 
   $('#lock-screen').classList.add('hidden');
   $('#app').classList.remove('hidden');

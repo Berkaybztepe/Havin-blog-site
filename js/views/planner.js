@@ -192,7 +192,7 @@ export default {
                   clear(out).append(el('div', { class: 'note note--danger' }, err.message || 'Olmadı.'));
                 } finally { btn.disabled = false; }
               },
-            }, '✨ plan çıkar'),
+            }, 'plan çıkar'),
             out),
         });
       };
@@ -202,7 +202,7 @@ export default {
           el('div', { class: 'card__head' },
             el('h3', {}, formatDateTR(selected)),
             el('div', { class: 'btn-row' },
-              el('button', { class: 'btn btn--sm', onClick: aiPlan }, '✨ gün planı'),
+              el('button', { class: 'btn btn--sm', onClick: aiPlan }, 'gün planı'),
               el('button', {
                 class: 'btn btn--sm btn--ghost',
                 onClick: () => {
@@ -217,7 +217,7 @@ export default {
                         el('p', { class: 'muted', style: { margin: '4px 0 0', fontSize: '.85rem' } }, t.note)))),
                   });
                 },
-              }, '📋 şablonlar'))),
+              }, 'şablonlar'))),
           el('div', { class: 'note', style: { marginBottom: '14px' } }, randomNudge()),
           el('div', { class: 'row', style: { marginBottom: '14px' } },
             titleInput, timeInput, catInput,

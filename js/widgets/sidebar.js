@@ -82,7 +82,7 @@ function wRuhHali() {
         // gunun cumlesini ruh haline gore tazele
         renderSidebar(document.getElementById('sidebar'));
       },
-    }, m.emoji)));
+    }, `${m.emoji} ${m.label}`)));
   return widgetBox('bugün nasılsın', row);
 }
 

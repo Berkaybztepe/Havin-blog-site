@@ -6,16 +6,16 @@
   display: flex; flex-wrap: wrap; align-items: center; gap: 9px;
   font-size: .8rem; color: var(--ink-soft); margin-bottom: 7px;
 }
-.post-card__title { margin: 0 0 8px; font-size: 1.85rem; cursor: pointer; }
+.post-card__title { margin: 0 0 10px; font-size: 1.5rem; cursor: pointer; }
 .post-card__title:hover { color: var(--accent); }
 .post-card__excerpt { color: var(--ink-soft); margin: 0 0 12px; }
 .post-card__cover {
   width: 100%; max-height: 300px; object-fit: cover;
-  border-radius: var(--radius-sm); border: 2px solid var(--line); margin-bottom: 12px;
+  border-radius: var(--radius-sm); border: 1px solid var(--line); margin-bottom: 12px;
 }
 
 .post-body { line-height: 1.75; }
-.post-body img { border-radius: var(--radius-sm); margin: 12px 0; border: 2px solid var(--line); }
+.post-body img { border-radius: var(--radius-sm); margin: 12px 0; border: 1px solid var(--line); }
 .post-body .sticker-inline { display: inline-block; width: 64px; height: 64px; vertical-align: middle; }
 
 /* yazi basina stil kapsayicisi */
@@ -30,7 +30,7 @@
 .toolbar {
   display: flex; flex-wrap: wrap; gap: 5px; align-items: center;
   padding: 8px; margin-bottom: 10px;
-  background: var(--chip); border: 2px solid var(--line); border-radius: var(--radius-sm);
+  background: var(--chip); border: 1px solid var(--line); border-radius: var(--radius-sm);
   position: sticky; top: 74px; z-index: 20;
 }
 .toolbar__btn {
@@ -45,7 +45,7 @@
 
 .editor {
   min-height: 300px; padding: 18px;
-  background: var(--panel-solid); border: 2px solid var(--line);
+  background: var(--panel-solid); border: 1px solid var(--line);
   border-radius: var(--radius-sm); line-height: 1.75;
 }
 .editor:focus { outline: none; border-color: var(--accent); }
@@ -56,7 +56,7 @@
 /* ===== PANO (mood board) ===== */
 .board-wrap {
   position: relative; overflow: hidden;
-  border: 2px solid var(--line); border-radius: var(--radius);
+  border: 1px solid var(--line); border-radius: var(--radius);
   background: var(--panel-solid);
   box-shadow: var(--shadow) inset;
   touch-action: none;            /* surukleme sayfayi kaydirmasin */
@@ -112,7 +112,7 @@
 }
 .sticker-pick button {
   aspect-ratio: 1; padding: 9px; cursor: pointer;
-  background: var(--panel-solid); border: 2px solid var(--line); border-radius: 12px;
+  background: var(--panel-solid); border: 1px solid var(--line); border-radius: 12px;
 }
 .sticker-pick button:hover { border-color: var(--accent); }
 
@@ -124,7 +124,7 @@
 
 .week__day {
   min-height: 92px; padding: 9px 7px; cursor: pointer;
-  background: var(--panel-solid); border: 2px solid var(--line); border-radius: 12px;
+  background: var(--panel-solid); border: 1px solid var(--line); border-radius: 12px;
   text-align: left; font: inherit; color: var(--ink);
   transition: border-color .16s var(--ease);
 }
@@ -139,14 +139,14 @@
 .task {
   display: flex; align-items: flex-start; gap: 11px;
   padding: 11px 13px; margin-bottom: 8px;
-  background: var(--panel-solid); border: 2px solid var(--line);
-  border-left-width: 5px; border-radius: var(--radius-sm);
+  background: var(--panel-solid); border: 1px solid var(--line);
+  border-left-width: 3px; border-radius: var(--radius-sm);
 }
 .task.is-done { opacity: .55; }
 .task.is-done .task__title { text-decoration: line-through; }
 .task__check {
   flex: 0 0 auto; width: 26px; height: 26px; margin-top: 1px;
-  border-radius: 7px; border: 2px solid var(--line); background: var(--panel-solid);
+  border-radius: 7px; border: 1px solid var(--line); background: var(--panel-solid);
   cursor: pointer; display: grid; place-items: center; font-size: .9rem; color: var(--accent-ink);
 }
 .task__check.is-on { background: var(--accent); border-color: var(--accent); }
@@ -158,20 +158,22 @@
 .tabs { display: flex; gap: 6px; margin-bottom: 18px; flex-wrap: wrap; }
 .tab {
   min-height: var(--tap); padding: 0 18px; border-radius: 999px;
-  background: var(--panel); border: 2px solid var(--line); color: var(--ink-soft);
+  background: var(--panel); border: 1px solid var(--line); color: var(--ink-soft);
   font: inherit; font-weight: 700; cursor: pointer;
 }
 .tab.is-on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
 
 .meal {
   display: flex; gap: 13px; padding: 13px;
-  background: var(--panel-solid); border: 2px solid var(--line);
+  background: var(--panel-solid); border: 1px solid var(--line);
   border-radius: var(--radius-sm); margin-bottom: 10px;
 }
 .meal__thumb {
   flex: 0 0 auto; width: 82px; height: 82px; object-fit: cover;
-  border-radius: 10px; border: 2px solid var(--line); background: var(--chip);
+  border-radius: var(--radius-sm); border: 1px solid var(--line); background: var(--chip);
 }
+/* Fotografsiz ogun: bos kare "yuklenemedi" gibi durmasin, yer tutucu oldugu belli olsun. */
+div.meal__thumb { background: transparent; border-style: dashed; }
 .meal__main { flex: 1 1 auto; min-width: 0; }
 .meal__macros { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 6px; }
 
@@ -186,11 +188,11 @@
 
 .totals {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 10px;
-  padding: 15px; background: var(--chip);
-  border: 2px solid var(--line); border-radius: var(--radius-sm); margin-bottom: 16px;
+  padding: 18px; background: transparent;
+  border: 1px solid var(--line); border-radius: var(--radius-sm); margin-bottom: 16px;
 }
 .totals__cell { text-align: center; }
-.totals__num { font-family: var(--font-head); font-size: 2rem; line-height: 1; }
+.totals__num { font-family: var(--font-head); font-size: 1.7rem; line-height: 1; }
 .totals__lab { font-size: .74rem; color: var(--ink-soft); text-transform: uppercase; letter-spacing: .05em; }
 
 .support-reply {
@@ -210,13 +212,13 @@
 .profile-head { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
 .profile-photo {
   width: 118px; height: 118px; border-radius: 50%; object-fit: cover;
-  border: 4px solid var(--accent); background: var(--chip);
+  border: 1px solid var(--line); background: var(--chip);
   display: grid; place-items: center; font-size: 2.6rem; flex: 0 0 auto;
 }
 
 .suggestion {
   padding: 14px 16px; margin-bottom: 11px;
-  background: var(--panel-solid); border: 2px solid var(--line);
+  background: var(--panel-solid); border: 1px solid var(--line);
   border-radius: var(--radius-sm);
 }
 .suggestion__cat { font-size: .74rem; font-weight: 700; color: var(--ink-soft); text-transform: uppercase; letter-spacing: .06em; }
@@ -230,16 +232,19 @@
 /* ===== OLUMLAMA ===== */
 .affirm-big {
   font-family: var(--font-head);
-  font-size: clamp(1.7rem, 4.5vw, 2.7rem);
-  line-height: 1.3; text-align: center; padding: 26px 16px;
+  font-size: clamp(1.4rem, 3.2vw, 2rem);
+  font-weight: 400;
+  line-height: 1.45; text-align: center; padding: 30px 16px;
 }
 .video-frame {
   position: relative; width: 100%; aspect-ratio: 16/9;
-  border-radius: var(--radius-sm); overflow: hidden; border: 2px solid var(--line); background: #000;
+  border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--line); background: #000;
 }
 .video-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 
-.mood-row { display: flex; flex-wrap: wrap; gap: 7px; justify-content: center; }
+.mood-row { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.sidebar .mood-row { justify-content: flex-start; }
+.sidebar .mood-row .chip-btn { min-height: 34px; padding: 0 10px; font-size: .8rem; }
 
 /* ===== AYARLAR ===== */
 .theme-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); gap: 11px; }
@@ -247,13 +252,17 @@
   padding: 0; overflow: hidden; cursor: pointer; font: inherit;
   border: 3px solid var(--line); border-radius: 13px; background: var(--panel-solid);
 }
-.theme-card.is-on { border-color: var(--accent); }
-.theme-card__swatch { height: 62px; display: block; }
+.theme-card.is-on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.theme-card__swatch {
+  height: 58px; display: grid; place-items: center;
+  border-bottom: 1px solid var(--line);
+}
+.theme-card__dot { width: 20px; height: 20px; border-radius: 50%; display: block; }
 .theme-card__name { display: block; padding: 8px; font-size: .84rem; font-weight: 700; color: var(--ink); }
 
 .widget-toggle {
   display: flex; align-items: center; gap: 11px; padding: 9px 12px;
-  background: var(--panel-solid); border: 2px solid var(--line);
+  background: var(--panel-solid); border: 1px solid var(--line);
   border-radius: var(--radius-sm); margin-bottom: 7px;
 }
 .widget-toggle__name { flex: 1 1 auto; font-weight: 600; }

@@ -1,6 +1,6 @@
-# Günlüğüm
+# içimden
 
-Kişisel, **şifreli**, tek kişilik bir günlük. Blogger / 2000'ler girl-blog havasında.
+Kişisel, **şifreli**, tek kişilik bir günlük. Sade, sessiz, yazının öne çıktığı bir defter.
 
 Hem **Android uygulaması (APK)** hem de tarayıcıda çalışan bir site olarak kullanılabilir.
 
@@ -16,7 +16,18 @@ Hem **Android uygulaması (APK)** hem de tarayıcıda çalışan bir site olarak
 | **Pano** | Serbest yerleşimli mood board: fotoğraf, 18 çıkartma ve not kâğıtları; parmakla sürükle, boyutlandır, döndür. |
 | **Planlayıcı** | Hafta görünümü, saatli görevler, gün notu, 5 hazır gün şablonu. |
 | **Beden & Mutfak** | Antrenman programı ve geçmişi; öğün kaydı, kalori/makro, 76 besinlik tablo; duygu & destek alanı. |
-| **Ayarlar** | 6 tema, yazı tipi/boyut/renk, kenar sütunu widget'ları, API anahtarı, otomatik kilit, yedekleme. |
+| **Ayarlar** | 7 tema, yazı tipi/boyut/renk, kenar sütunu widget'ları, API anahtarı, otomatik kilit, yedekleme. |
+
+### Görünüm
+
+Varsayılan tema **sade**: sıcak kâğıt zemin, saç teli kenarlıklar, gölge yok, bol boşluk.
+Gövde yazısı **Inter**, başlıklar **Newsreader**. Süsleme emojisi yok — tek istisna, kendi
+hâlini seçtiğin ruh hâli düğmeleri.
+
+Ayarlar → görünüm'den değiştirebileceklerin: 7 tema (sade · krem dantel · toskana · kiraz ·
+koyu toile · gece · 2000'ler), gövde ve başlık yazı tipi, yazı boyutu, yazı rengi, vurgu rengi.
+Her günlük yazısı ayrıca kendi yazı tipini, boyutunu ve rengini taşıyabiliyor — el yazısı
+fontları bunun için duruyor.
 
 ### Nazik mod
 Mutfak bölümünde tek dokunuşla tüm rakamlar gizlenir; sadece ne yediğin ve nasıl hissettiğin kalır.
@@ -29,7 +40,7 @@ diyet dili kullanmaz. Burası bir doktor değil; zorlanma uzun sürerse bir uzma
 
 ### Android uygulaması (önerilen)
 
-1. `android/out/gunlugum.apk` dosyasını telefona/tablete indir.
+1. `android/out/icimden.apk` dosyasını telefona/tablete indir.
 2. Aç. Android "bilinmeyen kaynak" diye soracak → izin ver.
 3. Kur ve aç.
 
@@ -102,7 +113,7 @@ Derleme adımı yok, npm yok, framework yok. Düz HTML + CSS + ES modülleri.
 index.html            uygulama kabuğu
 sw.js                 servis çalışanı (yalnızca web sürümü)
 css/                  tokens · base · layout · components · views
-assets/fonts/         9 yazı tipi, kendi sunucumuzda (Türkçe glifleri doğrulandı)
+assets/fonts/         11 yazı tipi, kendi sunucumuzda (Türkçe glifleri doğrulandı)
 js/core/              crypto · store · repo · session · router · look · backup · dom
 js/lib/               idb · sanitize · image
 js/data/              Türkçe içerik kütüphaneleri
@@ -124,7 +135,7 @@ sudo apt-get install aapt apksigner android-sdk-build-tools android-sdk-platform
 curl -o /opt/androidtools/dalvik-dx.jar \
   https://repo1.maven.org/maven2/com/jakewharton/android/repackaged/dalvik-dx/16.0.1/dalvik-dx-16.0.1.jar
 
-./android/build.sh          # -> android/out/gunlugum.apk
+./android/build.sh          # -> android/out/icimden.apk
 ```
 
 APK, uygulamayı `file://` yerine `https://havin.local/` sanal adresinden sunar

@@ -28,13 +28,13 @@ export function resetCache() { _index = null; }
 
 // --- ayarlar & profil ------------------------------------------------------
 export const DEFAULT_SETTINGS = {
-  theme: 'y2k',
-  fontBody: 'Quicksand',
-  fontHeading: 'Caveat',
+  theme: 'sade',
+  fontBody: 'Inter',
+  fontHeading: 'Newsreader',
   fontScale: 1,
   textColor: '',
   accent: '',
-  blogTitle: 'sevgili günlük',
+  blogTitle: 'içimden',
   blogTagline: 'buraya her şeyi yazabilirim. neşeli günleri de, ağır olanları da.',
   gentleMode: false,
   autoLockMinutes: 15,
