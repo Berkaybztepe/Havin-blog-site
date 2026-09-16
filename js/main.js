@@ -57,9 +57,9 @@ async function enterApp() {
   applyLook(lookFromSettings(s));
   session.setAutoLockMinutes(s.autoLockMinutes);
 
-  $('#blog-title').textContent = s.blogTitle || 'from within';
+  $('#blog-title').textContent = s.blogTitle || "havin's corner";
   $('#blog-tagline').textContent = s.blogTagline || '';
-  document.title = (s.blogTitle || 'from within');
+  document.title = (s.blogTitle || "havin's corner");
 
   $('#lock-screen').classList.add('hidden');
   $('#app').classList.remove('hidden');

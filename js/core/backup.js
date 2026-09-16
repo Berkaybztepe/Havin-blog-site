@@ -57,7 +57,7 @@ export async function exportToFile() {
   const text = JSON.stringify(dump);
   const blob = new Blob([text], { type: 'application/json' });
   const stamp = new Date().toISOString().slice(0, 10);
-  const name = `from-within-backup-${stamp}.havin.json`;
+  const name = `havins-corner-backup-${stamp}.havin.json`;
 
   // APK icinde: WebView blob: indirmelerini desteklemiyor, bu yuzden dosyayi
   // Android tarafina verip oraya kaydettiriyoruz (kullanici konumu seciyor).

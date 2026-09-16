@@ -34,7 +34,7 @@ export const DEFAULT_SETTINGS = {
   fontScale: 1,
   textColor: '',
   accent: '',
-  blogTitle: 'from within',
+  blogTitle: "havin's corner",
   blogTagline: 'I can write anything here. The happy days and the heavy ones.',
   gentleMode: false,
   autoLockMinutes: 15,

@@ -1,4 +1,4 @@
-# from within
+# havin's corner
 
 Kişisel, **şifreli**, tek kişilik bir günlük. Sade, sessiz, yazının öne çıktığı bir defter.
 
@@ -26,6 +26,11 @@ Varsayılan tema **sade**: sıcak kâğıt zemin, saç teli kenarlıklar, gölge
 Gövde yazısı **Inter**, başlıklar **Newsreader**. Uygulamada hiç emoji yok: ruh hâlleri
 sessiz birer **renk noktası** ve kelimeyle gösteriliyor, o günün rengi mini takvimde de
 görünüyor.
+
+Uygulama ikonu bunun dışında: ana ekranda 2000'ler kız havasında, pembe-lila geçişli,
+fiyonklu ve üzerinde el yazısıyla **my diary** yazan bir kare. İkon `assets/img/icon.svg`
+(yazı vektöre çevrildi, font gerekmiyor) ve PNG sürümleri `/tmp` değil repoda duruyor;
+hepsi `python3 tools/make-icon.py` ile yeniden üretilebilir.
 
 Ayarlar → görünüm'den değiştirebileceklerin: 7 tema (sade · krem dantel · toskana · kiraz ·
 koyu toile · gece · 2000'ler), gövde ve başlık yazı tipi, yazı boyutu, yazı rengi, vurgu rengi.
@@ -60,7 +65,7 @@ diyet dili kullanmaz. Burası bir doktor değil; zorlanma uzun sürerse bir uzma
 
 ### Android uygulaması (önerilen)
 
-1. `android/out/from-within.apk` dosyasını telefona/tablete indir.
+1. `android/out/havins-corner.apk` dosyasını telefona/tablete indir.
 2. Aç. Android "bilinmeyen kaynak" diye soracak → izin ver.
 3. Kur ve aç.
 
@@ -155,7 +160,7 @@ sudo apt-get install aapt apksigner android-sdk-build-tools android-sdk-platform
 curl -o /opt/androidtools/dalvik-dx.jar \
   https://repo1.maven.org/maven2/com/jakewharton/android/repackaged/dalvik-dx/16.0.1/dalvik-dx-16.0.1.jar
 
-./android/build.sh          # -> android/out/from-within.apk
+./android/build.sh          # -> android/out/havins-corner.apk
 ```
 
 APK, uygulamayı `file://` yerine `https://havin.local/` sanal adresinden sunar
