@@ -3,7 +3,7 @@
 // Tasarim karari: rakamlar varsayilan gorunur ama "nazik mod" tek dokunusla
 // hepsini gizler. Hicbir yerde hedef, limit ya da "asildi" uyarisi yok.
 
-import { el, clear, toast, modal, confirmDialog, todayISO, formatDateTR } from '../core/dom.js';
+import { el, clear, toast, modal, confirmDialog, todayISO, formatDate } from '../core/dom.js';
 import * as repo from '../core/repo.js';
 import { prepareForStorage, makeObjectURLScope } from '../lib/image.js';
 import { uuid } from '../core/crypto.js';
@@ -13,14 +13,14 @@ import { ENTRY_KINDS, GROUNDING, randomBodyNeutral, randomFoodReminder } from '.
 import { analyzeMealPhoto, analyzeMealText } from '../ai/features.js';
 import { supportResponse } from '../ai/features.js';
 
-const SLOTS = ['kahvaltı', 'öğle', 'akşam', 'ara öğün'];
+const SLOTS = ['breakfast', 'lunch', 'dinner', 'snack'];
 let scope = null;
 
 export default {
   async mount(host, { params }) {
     scope = makeObjectURLScope();
     const settings = await repo.getSettings();
-    let tab = (params && params.t) || 'mutfak';
+    let tab = (params && params.t) || 'kitchen';
 
     const content = el('div', {});
     const tabs = el('div', { class: 'tabs' });
@@ -30,19 +30,19 @@ export default {
       await repo.saveSettings({ gentleMode: gentleSwitch.checked });
       settings.gentleMode = gentleSwitch.checked;
       applyGentle();
-      toast(gentleSwitch.checked ? 'Nazik mod açık: sayılar gizlendi.' : 'Sayılar tekrar görünüyor.');
+      toast(gentleSwitch.checked ? 'Gentle mode on: numbers hidden.' : 'Numbers are visible again.');
     });
     const applyGentle = () => host.classList.toggle('gentle', gentleSwitch.checked);
 
     const setTab = (t) => {
       tab = t;
       for (const b of tabs.children) b.classList.toggle('is-on', b.dataset.t === t);
-      if (t === 'mutfak') drawKitchen();
-      else if (t === 'hareket') drawMovement();
+      if (t === 'kitchen') drawKitchen();
+      else if (t === 'movement') drawMovement();
       else drawFeelings();
     };
 
-    for (const [id, label] of [['mutfak', 'mutfak'], ['hareket', 'hareket'], ['duygu', 'duygu & destek']]) {
+    for (const [id, label] of [['kitchen', 'kitchen'], ['movement', 'movement'], ['feelings', 'feelings & support']]) {
       tabs.append(el('button', { class: 'tab', dataset: { t: id }, onClick: () => setTab(id) }, label));
     }
 
@@ -60,15 +60,15 @@ export default {
         }), { kcal: 0, protein: 0, carbs: 0, fat: 0 });
 
         clear(totalsBox).append(el('div', { class: 'totals' },
-          [['kcal', Math.round(sum.kcal), 'kalori'], ['p', Math.round(sum.protein) + 'g', 'protein'],
-           ['c', Math.round(sum.carbs) + 'g', 'karbonhidrat'], ['f', Math.round(sum.fat) + 'g', 'yağ']]
+          [['kcal', Math.round(sum.kcal), 'calories'], ['p', Math.round(sum.protein) + 'g', 'protein'],
+           ['c', Math.round(sum.carbs) + 'g', 'carbs'], ['f', Math.round(sum.fat) + 'g', 'fat']]
             .map(([, v, l]) => el('div', { class: 'totals__cell' },
               el('div', { class: 'totals__num' }, String(v)),
               el('div', { class: 'totals__lab' }, l)))));
 
         clear(listBox);
         if (!meals.length) {
-          listBox.append(el('p', { class: 'muted' }, 'Bu gün için bir şey eklemedin.'));
+          listBox.append(el('p', { class: 'muted' }, 'You have not added anything for this day.'));
           return;
         }
         for (const m of meals) {
@@ -87,7 +87,7 @@ export default {
             el('button', {
               class: 'btn btn--sm btn--ghost',
               onClick: async () => {
-                if (!await confirmDialog('Sil', `"${m.name}" silinsin mi?`, 'sil')) return;
+                if (!await confirmDialog('Delete', `"${m.name}" silinsin mi?`, 'delete')) return;
                 await repo.deleteMeal(m.id);
                 refresh();
               },
@@ -107,14 +107,14 @@ export default {
       clear(content).append(
         el('div', { class: 'card' },
           el('div', { class: 'card__head' },
-            el('h3', {}, 'mutfak'),
+            el('h3', {}, 'kitchen'),
             el('div', { class: 'btn-row' },
-              el('button', { class: 'btn btn--sm btn--primary', onClick: () => addMeal(date.value, refresh) }, '+ öğün ekle'))),
+              el('button', { class: 'btn btn--sm btn--primary', onClick: () => addMeal(date.value, refresh) }, '+ add a meal'))),
           el('div', { class: 'row', style: { marginBottom: '12px' } },
-            el('div', { style: { flex: '0 1 200px' } }, el('label', { class: 'field__label' }, 'gün'), date),
+            el('div', { style: { flex: '0 1 200px' } }, el('label', { class: 'field__label' }, 'day'), date),
             el('label', { class: 'switch', style: { flex: '1 1 auto' } },
               gentleSwitch, el('span', { class: 'switch__track' }),
-              el('span', {}, 'nazik mod — sayıları gizle'))),
+              el('span', {}, 'gentle mode — hide the numbers'))),
           totalsBox,
           listBox),
         el('div', { class: 'card card--tight' },
@@ -126,13 +126,13 @@ export default {
 
     // --- ogun ekleme penceresi ---
     function addMeal(dateISO, onDone) {
-      const name = el('input', { class: 'input', placeholder: 'ne yedin?' });
+      const name = el('input', { class: 'input', placeholder: 'what did you eat?' });
       const slot = el('select', { class: 'select' }, SLOTS.map((s) => el('option', { value: s }, s)));
-      const feeling = el('textarea', { class: 'textarea', style: { minHeight: '64px' }, placeholder: 'nasıl hissettin? (isteğe bağlı)' });
+      const feeling = el('textarea', { class: 'textarea', style: { minHeight: '64px' }, placeholder: 'how did it feel? (optional)' });
       const kcal = el('input', { class: 'input', type: 'number', min: '0', placeholder: 'kcal' });
       const prot = el('input', { class: 'input', type: 'number', min: '0', step: '0.1', placeholder: 'protein g' });
-      const carb = el('input', { class: 'input', type: 'number', min: '0', step: '0.1', placeholder: 'karb. g' });
-      const fat = el('input', { class: 'input', type: 'number', min: '0', step: '0.1', placeholder: 'yağ g' });
+      const carb = el('input', { class: 'input', type: 'number', min: '0', step: '0.1', placeholder: 'carbs g' });
+      const fat = el('input', { class: 'input', type: 'number', min: '0', step: '0.1', placeholder: 'fat g' });
       const photoInput = el('input', { class: 'input', type: 'file', accept: 'image/*' });
       const preview = el('div', {});
       const aiBox = el('div', {});
@@ -150,7 +150,7 @@ export default {
       });
 
       // yerel besin tablosundan arama
-      const foodSearch = el('input', { class: 'input', placeholder: 'besin tablosunda ara (örn. yumurta)' });
+      const foodSearch = el('input', { class: 'input', placeholder: 'search the food table (e.g. egg)' });
       const foodResults = el('div', { class: 'tag-list', style: { marginTop: '8px' } });
       foodSearch.addEventListener('input', () => {
         clear(foodResults);
@@ -158,7 +158,7 @@ export default {
           foodResults.append(el('button', {
             class: 'chip-btn',
             onClick: () => {
-              const g = Number(prompt(`${f.n} — kaç gram? (1 ${f.unit} ≈ ${f.g} g)`, String(f.g)));
+              const g = Number(prompt(`${f.n} — how many grams? (1 ${f.unit} \u2248 ${f.g} g)`, String(f.g)));
               if (!g) return;
               const v = scale(f, g);
               if (!name.value) name.value = f.n;
@@ -174,58 +174,58 @@ export default {
 
       const analyze = async (e) => {
         const btn = e.currentTarget;
-        if (!settings.apiKey) { toast('Bunun için Ayarlar\'dan API anahtarı eklemen gerek.', 'warn'); return; }
-        if (!pendingFile && !name.value.trim()) { toast('Fotoğraf ekle ya da ne yediğini yaz.', 'warn'); return; }
+        if (!settings.apiKey) { toast('You need to add an API key in Settings for this.', 'warn'); return; }
+        if (!pendingFile && !name.value.trim()) { toast('Add a photo or write what you ate.', 'warn'); return; }
         btn.disabled = true;
-        clear(aiBox).append(el('div', { class: 'loading-row' }, el('span', { class: 'spinner' }), 'fotoğrafa bakıyorum…'));
+        clear(aiBox).append(el('div', { class: 'loading-row' }, el('span', { class: 'spinner' }), 'looking at the photo…'));
         try {
           const r = pendingFile
             ? await analyzeMealPhoto(settings.apiKey, pendingFile, name.value.trim())
             : await analyzeMealText(settings.apiKey, name.value.trim());
-          if (!name.value.trim()) name.value = r.yemek;
+          if (!name.value.trim()) name.value = r.dish;
           kcal.value = String(r.kcal); prot.value = String(r.protein);
           carb.value = String(r.carbs); fat.value = String(r.fat);
           clear(aiBox).append(el('div', { class: 'note' },
-            el('p', { style: { margin: '0 0 6px' } }, el('strong', {}, r.yemek)),
-            r.porsiyon ? el('p', { class: 'muted', style: { margin: '0 0 6px' } }, 'porsiyon: ' + r.porsiyon) : null,
-            r.ogeler.length ? el('p', { class: 'muted', style: { margin: '0 0 6px' } }, r.ogeler.join(', ')) : null,
-            r.micros.length ? el('p', { class: 'muted', style: { margin: '0 0 6px' } }, 'öne çıkanlar: ' + r.micros.join(', ')) : null,
+            el('p', { style: { margin: '0 0 6px' } }, el('strong', {}, r.dish)),
+            r.portion ? el('p', { class: 'muted', style: { margin: '0 0 6px' } }, 'portion: ' + r.portion) : null,
+            r.items.length ? el('p', { class: 'muted', style: { margin: '0 0 6px' } }, r.items.join(', ')) : null,
+            r.micros.length ? el('p', { class: 'muted', style: { margin: '0 0 6px' } }, 'notable: ' + r.micros.join(', ')) : null,
             el('p', { style: { margin: '0 0 6px' } }, r.note),
             el('p', { class: 'muted', style: { margin: 0, fontSize: '.8rem' } },
-              `bu bir tahmin (güven: ${r.confidence}). rakamları elle düzeltebilirsin.`)));
+              `this is an estimate (confidence: ${r.confidence}). you can correct the numbers by hand.`)));
         } catch (err) {
-          clear(aiBox).append(el('div', { class: 'note note--warn' }, (err.message || 'Olmadı.') + ' Değerleri elle girebilirsin.'));
+          clear(aiBox).append(el('div', { class: 'note note--warn' }, (err.message || 'That did not work.') + ' You can enter the values by hand.'));
         } finally { btn.disabled = false; }
       };
 
       modal({
-        title: 'öğün ekle', wide: true,
+        title: 'add a meal', wide: true,
         body: el('div', {},
           el('div', { class: 'row' },
-            el('div', { style: { flex: '2 1 200px' } }, el('label', { class: 'field__label' }, 'ne yedin?'), name),
-            el('div', { style: { flex: '1 1 120px' } }, el('label', { class: 'field__label' }, 'öğün'), slot)),
+            el('div', { style: { flex: '2 1 200px' } }, el('label', { class: 'field__label' }, 'what did you eat?'), name),
+            el('div', { style: { flex: '1 1 120px' } }, el('label', { class: 'field__label' }, 'meal'), slot)),
           el('div', { class: 'field', style: { marginTop: '12px' } },
-            el('label', { class: 'field__label' }, 'fotoğraf'), photoInput, preview),
+            el('label', { class: 'field__label' }, 'photo'), photoInput, preview),
           el('button', { class: 'btn btn--primary btn--block', style: { marginTop: '10px' }, onClick: analyze },
-            'fotoğraftan hesapla'),
+            'work it out from the photo'),
           !settings.apiKey ? el('p', { class: 'field__hint' },
-            'API anahtarı eklersen fotoğraftan otomatik hesaplayabilirim. Anahtarsız da aşağıdan elle girebilirsin.') : null,
+            'Add an API key and I can work this out from the photo. Without one you can still enter it by hand below.') : null,
           aiBox,
           el('div', { class: 'field', style: { marginTop: '14px' } },
-            el('label', { class: 'field__label' }, 'hazır besin tablosundan ekle'), foodSearch, foodResults),
+            el('label', { class: 'field__label' }, 'add from the food table'), foodSearch, foodResults),
           el('div', { class: 'row', style: { marginTop: '12px' } }, kcal, prot, carb, fat),
           el('div', { class: 'field', style: { marginTop: '12px' } },
-            el('label', { class: 'field__label' }, 'nasıl hissettin?'), feeling)),
-        actions: [{ label: 'vazgeç' }, {
-          label: 'kaydet', kind: 'primary',
+            el('label', { class: 'field__label' }, 'how did it feel?'), feeling)),
+        actions: [{ label: 'cancel' }, {
+          label: 'save', kind: 'primary',
           onClick: async () => {
-            if (!name.value.trim()) { toast('Ne yediğini yaz.', 'warn'); return false; }
+            if (!name.value.trim()) { toast('Write what you ate.', 'warn'); return false; }
             let blobId = null;
             if (pendingFile) {
               try {
                 const { bytes, mime } = await prepareForStorage(pendingFile);
                 blobId = await repo.saveImage(bytes, mime);
-              } catch { toast('Fotoğraf kaydedilemedi ama öğün eklendi.', 'warn'); }
+              } catch { toast('The photo could not be saved, but the meal was added.', 'warn'); }
             }
             await repo.saveMeal({
               date: dateISO, name: name.value.trim(), slot: slot.value, blobId,
@@ -233,7 +233,7 @@ export default {
               carbs: Number(carb.value) || 0, fat: Number(fat.value) || 0,
               feeling: feeling.value.trim(),
             });
-            toast('Eklendi.');
+            toast('Added.');
             onDone();
           },
         }],
@@ -249,20 +249,20 @@ export default {
       const drawList = async () => {
         const ws = await repo.listWorkouts();
         clear(listBox);
-        if (!ws.length) { listBox.append(el('p', { class: 'muted' }, 'Henüz antrenman kaydetmedin.')); return; }
+        if (!ws.length) { listBox.append(el('p', { class: 'muted' }, 'You have not logged a session yet.')); return; }
         for (const w of ws.slice(0, 30)) {
           listBox.append(el('div', { class: 'card card--tight card--flat', style: { marginBottom: '8px' } },
             el('div', { class: 'card__head' },
               el('div', {},
                 el('strong', {}, w.name),
                 el('div', { class: 'muted', style: { fontSize: '.82rem' } },
-                  `${formatDateTR(w.date)} · ${w.exercises} hareket${w.minutes ? ' · ' + w.minutes + ' dk' : ''}`)),
+                  `${formatDate(w.date)} · ${w.exercises} movements${w.minutes ? ' · ' + w.minutes + ' min' : ''}`)),
               el('div', { class: 'btn-row' },
-                el('button', { class: 'btn btn--sm btn--ghost', onClick: () => logWorkout(w.id, drawList) }, 'aç'),
+                el('button', { class: 'btn btn--sm btn--ghost', onClick: () => logWorkout(w.id, drawList) }, 'open'),
                 el('button', {
                   class: 'btn btn--sm btn--ghost',
                   onClick: async () => {
-                    if (!await confirmDialog('Sil', 'Bu kayıt silinsin mi?', 'sil')) return;
+                    if (!await confirmDialog('Delete', 'Delete this entry?', 'delete')) return;
                     await repo.deleteWorkout(w.id); drawList();
                   },
                 }, '×')))));
@@ -275,7 +275,7 @@ export default {
         const p = await repo.getDocOr('program:main', null);
         clear(programBox);
         if (!p) {
-          programBox.append(el('p', { class: 'muted' }, 'Henüz program seçmedin.'));
+          programBox.append(el('p', { class: 'muted' }, 'You have not chosen a programme yet.'));
           return;
         }
         programBox.append(el('h4', {}, p.name), el('p', { class: 'muted' }, p.note));
@@ -285,7 +285,7 @@ export default {
               el('strong', {}, d.name),
               el('button', {
                 class: 'btn btn--sm', onClick: () => logWorkout(null, drawList, d),
-              }, 'bugün bunu yap')),
+              }, 'do this today')),
             el('p', { class: 'muted', style: { margin: 0, fontSize: '.88rem' } }, d.exercises.join(' · '))));
         }
       };
@@ -294,12 +294,12 @@ export default {
       clear(content).append(
         el('div', { class: 'card' },
           el('div', { class: 'card__head' },
-            el('h3', {}, 'programım'),
+            el('h3', {}, 'my programme'),
             el('button', {
               class: 'btn btn--sm',
               onClick: () => {
                 const m = modal({
-                  title: 'program seç', wide: true,
+                  title: 'choose a programme', wide: true,
                   body: el('div', { class: 'grid grid--2' },
                     SPLITS.map((s) => el('button', {
                       class: 'card card--tight',
@@ -307,18 +307,18 @@ export default {
                       onClick: async () => {
                         await repo.setDoc('program:main', s);
                         m.close(); drawProgram();
-                        toast('Program kaydedildi.');
+                        toast('Programme saved.');
                       },
                     }, el('strong', {}, s.name),
                        el('p', { class: 'muted', style: { margin: '4px 0 0', fontSize: '.85rem' } }, s.note)))),
                 });
               },
-            }, program ? 'değiştir' : '+ program seç')),
+            }, program ? 'change' : '+ choose a programme')),
           programBox),
         el('div', { class: 'card' },
           el('div', { class: 'card__head' },
-            el('h3', {}, 'antrenman geçmişim'),
-            el('button', { class: 'btn btn--sm btn--primary', onClick: () => logWorkout(null, drawList) }, '+ kaydet')),
+            el('h3', {}, 'my training history'),
+            el('button', { class: 'btn btn--sm btn--primary', onClick: () => logWorkout(null, drawList) }, '+ log a session')),
           listBox));
     }
 
@@ -330,10 +330,10 @@ export default {
         note: '',
       };
 
-      const name = el('input', { class: 'input', placeholder: 'antrenman adı', value: w.name });
+      const name = el('input', { class: 'input', placeholder: 'session name', value: w.name });
       const date = el('input', { class: 'input', type: 'date', value: w.date });
-      const minutes = el('input', { class: 'input', type: 'number', min: '0', placeholder: 'dakika', value: w.minutes || '' });
-      const note = el('textarea', { class: 'textarea', style: { minHeight: '60px' }, placeholder: 'nasıl geçti?' });
+      const minutes = el('input', { class: 'input', type: 'number', min: '0', placeholder: 'minutes', value: w.minutes || '' });
+      const note = el('textarea', { class: 'textarea', style: { minHeight: '60px' }, placeholder: 'how did it go?' });
       note.value = w.note || '';
 
       const rows = [...w.exercises];
@@ -341,9 +341,9 @@ export default {
       const drawRows = () => {
         clear(rowsBox);
         rows.forEach((ex, i) => {
-          const n = el('input', { class: 'input', placeholder: 'hareket', value: ex.name, list: 'ex-list' });
-          const s = el('input', { class: 'input', type: 'number', min: '0', placeholder: 'set', value: ex.sets });
-          const r = el('input', { class: 'input', type: 'number', min: '0', placeholder: 'tekrar', value: ex.reps });
+          const n = el('input', { class: 'input', placeholder: 'movement', value: ex.name, list: 'ex-list' });
+          const s = el('input', { class: 'input', type: 'number', min: '0', placeholder: 'sets', value: ex.sets });
+          const r = el('input', { class: 'input', type: 'number', min: '0', placeholder: 'reps', value: ex.reps });
           const k = el('input', { class: 'input', type: 'number', min: '0', step: '0.5', placeholder: 'kg', value: ex.kg });
           [n, s, r, k].forEach((inp, j) => inp.addEventListener('input', () => {
             ex[['name', 'sets', 'reps', 'kg'][j]] = inp.value;
@@ -358,30 +358,30 @@ export default {
       drawRows();
 
       modal({
-        title: id ? 'antrenmanı düzenle' : 'antrenman kaydet', wide: true,
+        title: id ? 'edit session' : 'log a session', wide: true,
         body: el('div', {},
           el('datalist', { id: 'ex-list' }, COMMON_EXERCISES.map((e) => el('option', { value: e }))),
           el('div', { class: 'row' },
-            el('div', { style: { flex: '2 1 180px' } }, el('label', { class: 'field__label' }, 'ad'), name),
-            el('div', { style: { flex: '1 1 140px' } }, el('label', { class: 'field__label' }, 'tarih'), date),
-            el('div', { style: { flex: '0 1 110px' } }, el('label', { class: 'field__label' }, 'dakika'), minutes)),
+            el('div', { style: { flex: '2 1 180px' } }, el('label', { class: 'field__label' }, 'name'), name),
+            el('div', { style: { flex: '1 1 140px' } }, el('label', { class: 'field__label' }, 'date'), date),
+            el('div', { style: { flex: '0 1 110px' } }, el('label', { class: 'field__label' }, 'minutes'), minutes)),
           el('div', { style: { marginTop: '14px' } },
-            el('label', { class: 'field__label' }, 'hareketler'),
+            el('label', { class: 'field__label' }, 'movements'),
             rowsBox,
             el('button', {
               class: 'btn btn--sm', onClick: () => { rows.push({ name: '', sets: '', reps: '', kg: '' }); drawRows(); },
-            }, '+ hareket')),
+            }, '+ movement')),
           el('div', { class: 'field', style: { marginTop: '14px' } },
-            el('label', { class: 'field__label' }, 'not'), note)),
-        actions: [{ label: 'vazgeç' }, {
-          label: 'kaydet', kind: 'primary',
+            el('label', { class: 'field__label' }, 'note'), note)),
+        actions: [{ label: 'cancel' }, {
+          label: 'save', kind: 'primary',
           onClick: async () => {
             await repo.saveWorkout({
-              ...w, id, name: name.value.trim() || 'antrenman', date: date.value,
+              ...w, id, name: name.value.trim() || 'session', date: date.value,
               minutes: Number(minutes.value) || 0,
               exercises: rows.filter((r) => r.name.trim()), note: note.value,
             });
-            toast('Kaydedildi.');
+            toast('Saved.');
             onDone();
           },
         }],
@@ -392,37 +392,37 @@ export default {
     async function drawFeelings() {
       const kind = el('select', { class: 'select' },
         ENTRY_KINDS.map((k) => el('option', { value: k.id }, k.label)));
-      const text = el('textarea', { class: 'textarea', style: { minHeight: '130px' }, placeholder: 'ne oldu? ne hissediyorsun? burada kimse okumuyor.' });
+      const text = el('textarea', { class: 'textarea', style: { minHeight: '130px' }, placeholder: 'what happened? how do you feel? nobody reads this.' });
       const replyBox = el('div', {});
       const listBox = el('div', {});
 
       const drawList = async () => {
         const items = await repo.listFeelings();
         clear(listBox);
-        if (!items.length) { listBox.append(el('p', { class: 'muted' }, 'Henüz bir şey yazmadın.')); return; }
+        if (!items.length) { listBox.append(el('p', { class: 'muted' }, 'You have not written anything yet.')); return; }
         for (const f of items.slice(0, 40)) {
           const k = ENTRY_KINDS.find((x) => x.id === f.kind);
           listBox.append(el('div', { class: 'card card--tight card--flat', style: { marginBottom: '8px' } },
             el('div', { class: 'card__head' },
               el('div', { class: 'muted', style: { fontSize: '.82rem' } },
-                `${k ? k.label : ''} · ${formatDateTR(f.date)}`),
+                `${k ? k.label : ''} · ${formatDate(f.date)}`),
               el('div', { class: 'btn-row' },
                 el('button', {
                   class: 'btn btn--sm btn--ghost',
                   onClick: async () => {
                     const full = await repo.getFeeling(f.id);
                     modal({
-                      title: formatDateTR(f.date),
+                      title: formatDate(f.date),
                       body: el('div', {},
                         el('p', { style: { whiteSpace: 'pre-wrap' } }, full.text),
                         full.reply ? el('div', { class: 'support-reply', style: { marginTop: '12px' } }, full.reply) : null),
                     });
                   },
-                }, 'aç'),
+                }, 'open'),
                 el('button', {
                   class: 'btn btn--sm btn--ghost',
                   onClick: async () => {
-                    if (!await confirmDialog('Sil', 'Bu kayıt silinsin mi?', 'sil')) return;
+                    if (!await confirmDialog('Delete', 'Delete this entry?', 'delete')) return;
                     await repo.deleteFeeling(f.id); drawList();
                   },
                 }, '×'))),
@@ -433,14 +433,14 @@ export default {
 
       const send = async (e) => {
         const btn = e.currentTarget;
-        if (!text.value.trim()) { toast('Önce bir şeyler yaz.', 'warn'); return; }
+        if (!text.value.trim()) { toast('Write something first.', 'warn'); return; }
         btn.disabled = true;
-        clear(replyBox).append(el('div', { class: 'loading-row' }, el('span', { class: 'spinner' }), 'okuyorum…'));
+        clear(replyBox).append(el('div', { class: 'loading-row' }, el('span', { class: 'spinner' }), 'reading…'));
         const { text: reply, source, warning } = await supportResponse(settings.apiKey, kind.value, text.value.trim());
         clear(replyBox).append(
           el('div', { class: 'support-reply' }, reply),
           source === 'yerel' ? el('p', { class: 'field__hint' },
-            warning ? warning : 'Bu, uygulamanın kendi destek kütüphanesinden geldi.') : null);
+            warning ? warning : 'This came from the app’s own support library.') : null);
         await repo.saveFeeling({ date: todayISO(), kind: kind.value, text: text.value.trim(), reply });
         text.value = '';
         btn.disabled = false;
@@ -451,16 +451,16 @@ export default {
 
       clear(content).append(
         el('div', { class: 'card' },
-          el('h3', {}, 'içini dök'),
-          el('p', { class: 'muted' }, 'yazdıkların burada kalır. bir karşılık istersen aşağıdaki düğmeye bas.'),
-          el('div', { class: 'field' }, el('label', { class: 'field__label' }, 'ne hakkında?'), kind),
+          el('h3', {}, 'let it out'),
+          el('p', { class: 'muted' }, 'what you write stays here. if you want a reply, press the button below.'),
+          el('div', { class: 'field' }, el('label', { class: 'field__label' }, 'what is it about?'), kind),
           text,
           el('div', { class: 'btn-row btn-row--end' },
-            el('button', { class: 'btn btn--primary', onClick: send }, 'kaydet ve karşılık al')),
+            el('button', { class: 'btn btn--primary', onClick: send }, 'save and get a reply')),
           replyBox),
 
         el('div', { class: 'card' },
-          el('h3', {}, 'şu an işe yarayabilir'),
+          el('h3', {}, 'this might help right now'),
           el('div', { class: 'note' },
             el('strong', {}, grounding.t),
             el('p', { style: { margin: '6px 0 0' } }, grounding.d),
@@ -468,12 +468,12 @@ export default {
           el('p', { class: 'muted', style: { marginTop: '14px' } }, randomBodyNeutral())),
 
         el('div', { class: 'card' },
-          el('h3', {}, 'geçmiş'),
+          el('h3', {}, 'history'),
           listBox),
 
         el('p', { class: 'muted', style: { fontSize: '.82rem', textAlign: 'center' } },
-          'burası bir doktor ya da terapist değil. zorlandığın bir şey uzun sürüyorsa, ' +
-          'bunu güvendiğin birine ya da bir uzmana anlatmak iyi gelebilir.'));
+          'this is not a doctor or a therapist. if something is weighing on you for a long time, ' +
+          'telling someone you trust, or a professional, could help.'));
 
       applyGentle();
     }

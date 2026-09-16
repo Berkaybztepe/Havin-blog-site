@@ -1,152 +1,152 @@
-// Destek kutuphanesi — yemek, beden ve zor anlar icin.
+// Support library — for food, body and hard moments.
 //
-// Bu bolumun kurallari:
-//   - Rakam vermez. Kalori, kilo, "telafi" onermez.
-//   - Yargilamaz. "Yapmamaliydin" demez.
-//   - Tani koymaz, doktor yerine gecmez.
-//   - Kusursuzluk degil, devamlilik dili kullanir.
-//   - Bir atagi "basarisizlik" olarak degil, bir bilgi olarak ele alir.
+// Rules for this section:
+//   - No numbers. Never mentions calories, weight, or "making up for it".
+//   - No judgement. Never says "you shouldn't have".
+//   - No diagnosis. It does not stand in for a doctor.
+//   - Language of continuing, not of perfection.
+//   - Treats an episode as information, not as failure.
 
 export const ENTRY_KINDS = [
-  { id: 'his',    label: 'bir his' },
-  { id: 'atak',   label: 'yeme atağı' },
-  { id: 'beden',  label: 'bedenimle ilgili' },
-  { id: 'yemek',  label: 'yemekle ilgili' },
-  { id: 'iyi',    label: 'iyi giden bir şey' },
+  { id: 'feeling', label: 'a feeling' },
+  { id: 'binge',   label: 'a binge' },
+  { id: 'body',    label: 'something about my body' },
+  { id: 'food',    label: 'something about food' },
+  { id: 'good',    label: 'something that went well' },
 ];
 
-/** Atak sonrasi: once sakinlestir, sonra merak et. Asla once analiz etme. */
+/** After an episode: settle first, get curious later. Never analyse first. */
 export const AFTER_BINGE = [
-  'Şu an olan şey bir başarısızlık değil. Bedenin ya da zihnin bir şey istedi ve bunu bulabildiği tek yoldan söyledi.',
-  'Telafi etmek zorunda değilsin. Bir sonraki öğünü atlamak, bu anı geri almaz; sadece bir sonraki atağı yaklaştırır.',
-  'Şu an kendine kızmak çok anlaşılır. Ama kızgınlık bugüne kadar bu durumu hiç çözmedi — deneyimin de bunu söylüyor olabilir.',
-  'Bu bir döngüyse, döngüyü kıran şey ceza değil, şefkat oluyor. Kulağa fazla yumuşak geliyor, biliyorum. Yine de böyle.',
-  'Vücudun şu an bir şeyi sindiriyor. Yapman gereken tek şey yok. Oturmak yeterli.',
-  'Bir şey yemiş olmak seni geri götürmedi. Sadece bir gün geçti, ve günler böyle de geçer.',
-  'Bugün olan şeyi yarın düşünebilirsin. Şu an sadece rahatlamana izin ver.',
+  'What just happened is not a failure. Your body or your mind wanted something and said so the only way it could.',
+  "You don't have to make up for it. Skipping the next meal won't undo this moment; it only brings the next episode closer.",
+  'Being angry at yourself right now makes complete sense. But anger has never once solved this — your own experience probably says so too.',
+  'If this is a loop, what breaks the loop is gentleness, not punishment. I know that sounds too soft. It is still true.',
+  'Your body is digesting something right now. There is nothing you need to do. Sitting is enough.',
+  'Eating something did not set you back. A day passed, and days pass like this sometimes.',
+  'You can think about what happened tomorrow. For now, just let yourself settle.',
 ];
 
-/** Atagin oncesine bakmak icin — sucluluk degil merak uyandiran sorular. */
+/** Looking at what came before — questions that invite curiosity, not guilt. */
 export const CURIOSITY_PROMPTS = [
-  'Bundan hemen önce ne oluyordu? Bir konuşma, bir mesaj, bir düşünce?',
-  'Bugün yeterince yedin mi? Çoğu atak, gün içindeki bir eksikliğin peşinden gelir.',
-  'Yorgun muydun? Yorgunluk, açlıkla çok benzer bir his yaratabiliyor.',
-  'Yalnız mıydın? Bazen aradığımız şey yemek değil, eşlik.',
-  'Canın sıkkın mıydı, yoksa bir şeyi mi bastırıyordun?',
-  'Bugün kendine "yasak" koyduğun bir yiyecek var mıydı?',
-  'Bu his nereden geliyor gibi hissettiriyor — mideden mi, göğüsten mi, kafadan mı?',
-  'Eğer bu an bir şey söylemeye çalışsaydı, ne derdi?',
+  'What was happening right before this? A conversation, a message, a thought?',
+  'Did you eat enough today? Most episodes follow a gap earlier in the day.',
+  'Were you tired? Tiredness can feel almost exactly like hunger.',
+  'Were you alone? Sometimes what we are reaching for is company, not food.',
+  'Were you low, or were you pushing something down?',
+  'Was there a food you had put off-limits today?',
+  'Where does this feeling sit — in your stomach, your chest, or your head?',
+  'If this moment were trying to say something, what would it say?',
 ];
 
-/** Beden noturlugu — sevmek zorunda birakmadan. */
+/** Body neutrality — without demanding that you love it. */
 export const BODY_NEUTRAL = [
-  'Bedenini sevmek zorunda değilsin. Ona iyi davranmak, sevmeden de mümkün.',
-  'Bugün bedeninden hoşlanmıyor olabilirsin. Bu, bedeninin kötü olduğu anlamına gelmiyor; sadece bugün böyle bakıyorsun.',
-  'Aynadaki görüntü, günün saatine, ışığa ve ruh hâline göre değişiyor. Değişen şey sen değilsin.',
-  'Bedenin bir vitrin değil. Seni bir yerden bir yere taşıyan, seni yaşatan şey.',
-  'Bir bedende olmak bazen zor. Bunu hissetmek seni yüzeysel yapmaz.',
-  'Bugün bedenin hakkında düşünmemeyi seçebilirsin. Bu da geçerli bir seçenek.',
-  'Kendini bir başkasıyla kıyasladığın an, iki farklı hayatı tek bir fotoğrafla ölçüyorsun demektir.',
-  'Bedeninin değişmesi gerekmiyor ki sen iyi bir gün geçiresin.',
+  'You do not have to love your body. Treating it well is possible without that.',
+  "You might not like your body today. That doesn't mean your body is bad; it means that's how you're looking at it today.",
+  'What you see in the mirror shifts with the hour, the light and your mood. The thing that shifts is not you.',
+  'Your body is not a display case. It is the thing carrying you from one place to another.',
+  'Being in a body is hard sometimes. Feeling that does not make you shallow.',
+  'You can choose not to think about your body today. That is a valid option too.',
+  'The moment you compare yourself to someone else, you are measuring two whole lives with one photograph.',
+  'Your body does not have to change for you to have a good day.',
 ];
 
-/** Yemek konusunda genel, baskisiz hatirlaticilar. */
+/** General, pressure-free reminders about food. */
 export const FOOD_REMINDERS = [
-  'Yiyeceklerin iyi ya da kötü olması diye bir şey yok. Sadece yiyecekler var.',
-  'Düzenli yemek, iradeden daha çok işe yarıyor. Aç kalmamak zaten yarısı.',
-  'Bir öğünü kaçırdıysan, bir sonrakini normal ye. Ceza ya da telafi gerekmiyor.',
-  'Canın çektiği şeyi yemek, kontrolü kaybetmek değil. Bazen tam tersi.',
-  'Tabağını bitirmek zorunda değilsin. Bırakmak da bir seçim.',
-  'Sosyal bir sofrada yediğin şeyi hesaplamamak, kendine verebileceğin küçük bir izin.',
-  'Aynı yemeği iki gün üst üste yemek sıkıcı değil, pratik.',
-  'Yemek sadece yakıt değil. Tat, hatıra ve eşlik de besliyor.',
+  'There is no such thing as good food and bad food. There is just food.',
+  'Eating regularly works better than willpower. Not being hungry is already half of it.',
+  'If you missed a meal, eat the next one normally. No punishment, no making up for it.',
+  'Eating what you are craving is not losing control. Sometimes it is the opposite.',
+  'You do not have to finish your plate. Stopping is a choice too.',
+  'Not counting what you ate at a table full of people is a small permission you can give yourself.',
+  'Eating the same meal two days running is not boring, it is practical.',
+  'Food is not only fuel. Taste, memory and company feed you too.',
 ];
 
-/** Topraklanma ve regulasyon egzersizleri. */
+/** Grounding and regulation exercises. */
 export const GROUNDING = [
   {
     t: '5–4–3–2–1',
-    d: 'Etrafında gördüğün 5 şeyi, duyduğun 4 sesi, dokunabildiğin 3 şeyi, aldığın 2 kokuyu ve 1 tadı say. Zihni şimdiye çeker.',
+    d: 'Name 5 things you can see, 4 you can hear, 3 you can touch, 2 you can smell and 1 you can taste. It pulls the mind into now.',
     min: 3,
   },
   {
-    t: 'Uzun nefes verme',
-    d: '4 sayarak al, 6 sayarak ver. Nefes vermeyi uzatmak bedeni sakinleştiren tarafı çalıştırır. Beş tur yeter.',
+    t: 'Long exhale',
+    d: 'In for 4, out for 6. Lengthening the exhale switches on the part of the body that calms you down. Five rounds is enough.',
     min: 2,
   },
   {
-    t: 'Soğuk su',
-    d: 'Bileklerini soğuk suyun altına tut ya da yüzüne soğuk su çarp. Bedeni hızlı bir şekilde aşağı çeker.',
+    t: 'Cold water',
+    d: 'Run cold water over your wrists, or splash your face. It brings the body down quickly.',
     min: 1,
   },
   {
-    t: 'Ayaklarını hisset',
-    d: 'Ayaklarını yere bas ve sadece zeminle temasını hisset. Otuz saniye. Dağılmış hissettiğinde toparlar.',
+    t: 'Feel your feet',
+    d: 'Put your feet on the floor and feel only where they touch it. Thirty seconds. It gathers you when you feel scattered.',
     min: 1,
   },
   {
-    t: 'Adlandır',
-    d: 'Hissettiğin şeyi tek kelimeyle adlandır: kaygı, yalnızlık, öfke, boşluk. Adı konan duygu küçülür.',
+    t: 'Name it',
+    d: 'Give the feeling one word: anxiety, loneliness, anger, emptiness. A named feeling gets smaller.',
     min: 2,
   },
   {
-    t: 'Kendine mektup',
-    d: 'Bu durumu yaşayan sen değil de en sevdiğin arkadaşın olsaydı ona ne yazardın? Onu kendine yaz.',
+    t: 'A letter to yourself',
+    d: 'If your closest friend were in this exact situation, what would you write to them? Write that to yourself.',
     min: 8,
   },
   {
-    t: 'On dakika ertele',
-    d: 'Bir dürtü geldiğinde "hayır" deme, "on dakika sonra" de. Çoğu dürtü on dakikada şeklini değiştirir.',
+    t: 'Ten minute delay',
+    d: 'When an urge arrives, do not say no — say "in ten minutes". Most urges change shape in ten minutes.',
     min: 10,
   },
   {
-    t: 'Yürü',
-    d: 'Dışarı çık ve mahalleyi bir tur dön. Ortamı değiştirmek düşünceyi de değiştiriyor.',
+    t: 'Walk',
+    d: 'Go outside and go once around the block. Changing the room changes the thought.',
     min: 15,
   },
 ];
 
-/** Iyi giden bir seyi kaydettiginde. */
+/** When you log something that went well. */
 export const CELEBRATE = [
-  'Bunu buraya yazdığın iyi oldu. İyi giden şeyler yazılmazsa unutuluyor, kötüler kendiliğinden kalıyor.',
-  'Bu küçük görünebilir ama bu tür şeyler birikiyor.',
-  'Bunu başardığın günü, zor günlerde hatırlamak için buradasın.',
-  'Böyle günler de senin. Sadece zor olanlar değil.',
+  'Good that you wrote this down. Good things go missing if they are not recorded; the bad ones stay on their own.',
+  'This might look small, but these are the things that add up.',
+  'You are here so you can remember this day on a hard one.',
+  'Days like this are yours too. Not only the difficult ones.',
 ];
 
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
 /**
- * Anahtar yokken kullanilan yerel destek yaniti.
- * Yapay zekanin yerini tutmaz ama bos birakmaz.
+ * The local support response, used when no API key is set.
+ * It does not replace the AI, but it never leaves you with nothing.
  */
 export function localSupport(kind, text) {
-  const lower = (text || '').toLocaleLowerCase('tr-TR');
+  const lower = (text || '').toLowerCase();
   const parts = [];
 
-  if (kind === 'atak') {
+  if (kind === 'binge') {
     parts.push(pick(AFTER_BINGE));
-    parts.push('Hazır olduğunda, merak etmek için bir soru: ' + pick(CURIOSITY_PROMPTS));
-    parts.push('Şimdi işe yarayabilir: ' + (() => { const g = pick(GROUNDING); return `${g.t} — ${g.d}`; })());
-  } else if (kind === 'beden') {
+    parts.push('When you are ready, one question to be curious about: ' + pick(CURIOSITY_PROMPTS));
+    parts.push('This might help right now: ' + (() => { const g = pick(GROUNDING); return `${g.t} — ${g.d}`; })());
+  } else if (kind === 'body') {
     parts.push(pick(BODY_NEUTRAL));
-    if (/ayna|kilo|şişman|göbek|kot|beden|tarttım/.test(lower)) {
-      parts.push('Bugün ölçüye bakmamayı deneyebilirsin. Sayı, o gün nasıl hissedeceğini belirlemek zorunda değil.');
+    if (/mirror|weight|weigh|fat|belly|jeans|scale/.test(lower)) {
+      parts.push('You could try not checking any measurement today. A number does not get to decide how you feel.');
     }
     parts.push(pick(GROUNDING).d);
-  } else if (kind === 'yemek') {
+  } else if (kind === 'food') {
     parts.push(pick(FOOD_REMINDERS));
-    parts.push('Yardımcı olabilir: ' + pick(CURIOSITY_PROMPTS));
-  } else if (kind === 'iyi') {
+    parts.push('This might help: ' + pick(CURIOSITY_PROMPTS));
+  } else if (kind === 'good') {
     parts.push(pick(CELEBRATE));
   } else {
-    parts.push('Yazdığın için iyi yaptın. Bir şeyi dışarı çıkarmak, onu taşınabilir hâle getiriyor.');
-    parts.push('İstersen şunu dene: ' + (() => { const g = pick(GROUNDING); return `${g.t} — ${g.d}`; })());
+    parts.push('Good that you wrote it. Putting something outside of you makes it carryable.');
+    parts.push('If you want, try this: ' + (() => { const g = pick(GROUNDING); return `${g.t} — ${g.d}`; })());
   }
 
-  // Agir isaretler varsa, vaaz vermeden tek bir cumle.
-  if (/kusmak|kustum|çıkardım|aç kaldım|günlerdir yemedim|kendime zarar|yaşamak istemiyorum|intihar/.test(lower)) {
-    parts.push('Bunu tek başına taşımak zorunda değilsin. Güvendiğin birine ya da bir uzmana söylemek, bu yükü hafifletebilir.');
+  // If there are heavier signals, one sentence — without preaching.
+  if (/throw(ing)? up|threw up|purge|starv|haven'?t eaten|hurt myself|self harm|kill myself|suicid|don'?t want to live/.test(lower)) {
+    parts.push('You do not have to carry this alone. Telling someone you trust, or a professional, could take some of the weight off.');
   }
 
   return parts.join('\n\n');

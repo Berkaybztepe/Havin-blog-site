@@ -73,11 +73,11 @@ fi
 apksigner sign --ks "$KEYSTORE" --ks-key-alias havin \
   --ks-pass "pass:$KS_PASS" --key-pass "pass:$KS_PASS" \
   --v1-signing-enabled true --v2-signing-enabled true \
-  --out "$OUT/icimden.apk" "$BUILD/aligned.apk" 2>&1 | grep -v "^Picked up" || true
+  --out "$OUT/from-within.apk" "$BUILD/aligned.apk" 2>&1 | grep -v "^Picked up" || true
 
 echo "==> dogrula"
-apksigner verify --print-certs "$OUT/icimden.apk" 2>&1 | grep -v "^Picked up\|WARNING" | head -4 || true
+apksigner verify --print-certs "$OUT/from-within.apk" 2>&1 | grep -v "^Picked up\|WARNING" | head -4 || true
 
-SIZE=$(stat -c%s "$OUT/icimden.apk")
+SIZE=$(stat -c%s "$OUT/from-within.apk")
 echo ""
-echo "TAMAM: $OUT/icimden.apk  ($(( SIZE / 1024 )) KB)"
+echo "TAMAM: $OUT/from-within.apk  ($(( SIZE / 1024 )) KB)"

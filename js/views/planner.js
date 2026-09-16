@@ -1,6 +1,6 @@
 // Planlayici: hafta gorunumu, gun detayi, gun plani onerileri.
 
-import { el, clear, toast, modal, todayISO, formatDateTR, TR_DAY_SHORT, mondayIndex, confirmDialog } from '../core/dom.js';
+import { el, clear, toast, modal, todayISO, formatDate, DAY_SHORT, mondayIndex, confirmDialog } from '../core/dom.js';
 import * as repo from '../core/repo.js';
 import { TASK_CATEGORIES, DAY_TEMPLATES, categoryColor, randomNudge } from '../data/planner.js';
 import { suggestDayPlan } from '../ai/features.js';
@@ -35,7 +35,7 @@ export default {
         d.setDate(d.getDate() + i);
         days.push(isoOf(d));
       }
-      weekLabel.textContent = `${formatDateTR(days[0], false)} – ${formatDateTR(days[6], false)}`;
+      weekLabel.textContent = `${formatDate(days[0], false)} – ${formatDate(days[6], false)}`;
 
       const loaded = await Promise.all(days.map((iso) => repo.getDay(iso)));
       days.forEach((iso, i) => {
@@ -45,7 +45,7 @@ export default {
           class: 'week__day' + (iso === todayISO() ? ' is-today' : '') + (iso === selected ? ' is-selected' : ''),
           onClick: () => { selected = iso; drawWeek(); drawDay(); },
         },
-          el('div', { class: 'week__dow' }, TR_DAY_SHORT[i]),
+          el('div', { class: 'week__dow' }, DAY_SHORT[i]),
           el('div', { class: 'week__num' }, iso.slice(8)),
           el('div', { class: 'week__dots' },
             (day.tasks || []).slice(0, 6).map((t) => el('span', {
@@ -53,7 +53,7 @@ export default {
               style: { background: categoryColor(t.cat), opacity: t.done ? '.35' : '1' },
             }))),
           undone.length ? el('div', { class: 'muted', style: { fontSize: '.7rem', marginTop: '2px' } },
-            `${undone.length} iş`) : null));
+            `${undone.length} left`) : null));
       });
     }
 
@@ -66,7 +66,7 @@ export default {
       const drawTasks = () => {
         clear(listBox);
         if (!tasks.length) {
-          listBox.append(el('p', { class: 'muted' }, 'Bu gün için bir şey yazmamışsın.'));
+          listBox.append(el('p', { class: 'muted' }, 'You have not written anything for this day.'));
           return;
         }
         const sorted = [...tasks].sort((a, b) => (a.time || '99:99').localeCompare(b.time || '99:99'));
@@ -77,7 +77,7 @@ export default {
           },
             el('button', {
               class: 'task__check' + (t.done ? ' is-on' : ''),
-              'aria-label': t.done ? 'yapılmadı olarak işaretle' : 'yapıldı olarak işaretle',
+              'aria-label': t.done ? 'mark as not done' : 'mark as done',
               onClick: async () => { t.done = !t.done; await repo.saveDay({ ...day, tasks }); drawTasks(); drawWeek(); },
             }, t.done ? '✓' : ''),
             el('div', { class: 'task__main' },
@@ -97,7 +97,7 @@ export default {
       drawTasks();
 
       // hizli ekleme
-      const titleInput = el('input', { class: 'input', placeholder: 'ne yapacaksın?', style: { flex: '2 1 160px' } });
+      const titleInput = el('input', { class: 'input', placeholder: 'what will you do?', style: { flex: '2 1 160px' } });
       const timeInput = el('input', { class: 'input', type: 'time', style: { flex: '0 1 120px' } });
       const catInput = el('select', { class: 'select', style: { flex: '0 1 130px' } },
         TASK_CATEGORIES.map((c) => el('option', { value: c.id }, c.label)));
@@ -114,7 +114,7 @@ export default {
       titleInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') addTask(); });
 
       // gun notu
-      const note = el('textarea', { class: 'textarea', placeholder: 'bu güne dair notlar…' });
+      const note = el('textarea', { class: 'textarea', placeholder: 'notes about this day…' });
       note.value = day.note || '';
       note.addEventListener('change', async () => { await repo.saveDay({ ...day, tasks, note: note.value }); });
 
@@ -129,13 +129,13 @@ export default {
                 el('div', { class: 'task__main' },
                   el('div', { class: 'task__time' }, b.time),
                   el('div', { class: 'task__title' }, b.title)))))),
-          actions: [{ label: 'vazgeç' }, {
-            label: 'bu güne ekle', kind: 'primary',
+          actions: [{ label: 'cancel' }, {
+            label: 'add to this day', kind: 'primary',
             onClick: async () => {
               for (const b of tpl.blocks) tasks.push({ id: uuid(), title: b.title, time: b.time, cat: b.cat, done: false });
               await repo.saveDay({ ...day, tasks });
               drawTasks(); drawWeek();
-              toast('Plan eklendi.');
+              toast('Plan added.');
             },
           }],
         });
@@ -144,55 +144,55 @@ export default {
       // yapay zeka plani
       const aiPlan = () => {
         const energy = el('select', { class: 'select' },
-          ['düşük', 'orta', 'yüksek'].map((v) => el('option', { value: v, selected: v === 'orta' }, v)));
-        const must = el('textarea', { class: 'textarea', style: { minHeight: '70px' }, placeholder: 'bugün mutlaka yapılması gerekenler' });
+          ['low', 'medium', 'high'].map((v) => el('option', { value: v, selected: v === 'medium' }, v)));
+        const must = el('textarea', { class: 'textarea', style: { minHeight: '70px' }, placeholder: 'what must happen today' });
         const out = el('div', {});
         modal({
-          title: 'bana bir gün planı çıkar',
+          title: 'make me a day plan',
           wide: true,
           body: el('div', {},
             !settings.apiKey ? el('div', { class: 'note note--warn' },
-              'API anahtarı yok, bu yüzden hazır şablonlardan gidiyorum. Ayarlar\'dan anahtar eklersen sana özel plan çıkarabilirim.') : null,
-            el('div', { class: 'field' }, el('label', { class: 'field__label' }, 'bugünkü enerjin'), energy),
-            el('div', { class: 'field' }, el('label', { class: 'field__label' }, 'mutlaka yapılacaklar'), must),
+              'No API key, so I am working from the ready-made templates. Add a key in Settings and I can make one just for you.') : null,
+            el('div', { class: 'field' }, el('label', { class: 'field__label' }, 'your energy today'), energy),
+            el('div', { class: 'field' }, el('label', { class: 'field__label' }, 'must happen today'), must),
             el('button', {
               class: 'btn btn--primary btn--block',
               onClick: async (e) => {
                 const btn = e.currentTarget;
                 btn.disabled = true;
-                clear(out).append(el('div', { class: 'loading-row' }, el('span', { class: 'spinner' }), 'plan çıkarılıyor…'));
+                clear(out).append(el('div', { class: 'loading-row' }, el('span', { class: 'spinner' }), 'making a plan…'));
                 try {
                   const plan = await suggestDayPlan(settings.apiKey, {
                     energy: energy.value, mustDo: must.value, note: day.note,
                   });
                   clear(out);
-                  if (plan.ozet) out.append(el('div', { class: 'note' }, plan.ozet));
-                  if (plan.bloklar.length) {
-                    out.append(el('div', { style: { marginTop: '12px' } }, plan.bloklar.map((b) =>
-                      el('div', { class: 'task', style: { borderLeftColor: categoryColor(b.kategori) } },
+                  if (plan.summary) out.append(el('div', { class: 'note' }, plan.summary));
+                  if (plan.blocks.length) {
+                    out.append(el('div', { style: { marginTop: '12px' } }, plan.blocks.map((b) =>
+                      el('div', { class: 'task', style: { borderLeftColor: categoryColor(b.category) } },
                         el('div', { class: 'task__main' },
-                          el('div', { class: 'task__time' }, b.saat),
-                          el('div', { class: 'task__title' }, b.baslik))))));
+                          el('div', { class: 'task__time' }, b.time),
+                          el('div', { class: 'task__title' }, b.title))))));
                     out.append(el('button', {
                       class: 'btn btn--primary', style: { marginTop: '12px' },
                       onClick: async () => {
-                        for (const b of plan.bloklar) {
-                          tasks.push({ id: uuid(), title: b.baslik, time: b.saat, cat: b.kategori, done: false });
+                        for (const b of plan.blocks) {
+                          tasks.push({ id: uuid(), title: b.title, time: b.time, cat: b.category, done: false });
                         }
                         await repo.saveDay({ ...day, tasks });
                         drawTasks(); drawWeek();
-                        toast('Plan güne eklendi.');
+                        toast('Plan added to the day.');
                       },
-                    }, '↓ bu güne ekle'));
+                    }, '↓ add to this day'));
                   } else {
                     out.append(el('p', { class: 'muted', style: { marginTop: '10px' } },
-                      'Aşağıdaki hazır şablonlardan birini kullanabilirsin.'));
+                      'You can use one of the ready-made templates below.'));
                   }
                 } catch (err) {
-                  clear(out).append(el('div', { class: 'note note--danger' }, err.message || 'Olmadı.'));
+                  clear(out).append(el('div', { class: 'note note--danger' }, err.message || 'That did not work.'));
                 } finally { btn.disabled = false; }
               },
-            }, 'plan çıkar'),
+            }, 'make a plan'),
             out),
         });
       };
@@ -200,14 +200,14 @@ export default {
       clear(dayBox).append(
         el('div', { class: 'card' },
           el('div', { class: 'card__head' },
-            el('h3', {}, formatDateTR(selected)),
+            el('h3', {}, formatDate(selected)),
             el('div', { class: 'btn-row' },
-              el('button', { class: 'btn btn--sm', onClick: aiPlan }, 'gün planı'),
+              el('button', { class: 'btn btn--sm', onClick: aiPlan }, 'day plan'),
               el('button', {
                 class: 'btn btn--sm btn--ghost',
                 onClick: () => {
                   const m = modal({
-                    title: 'hazır plan şablonları', wide: true,
+                    title: 'ready-made day templates', wide: true,
                     body: el('div', { class: 'grid grid--2' },
                       DAY_TEMPLATES.map((t) => el('button', {
                         class: 'card card--tight', style: { textAlign: 'left', cursor: 'pointer', font: 'inherit', color: 'inherit' },
@@ -217,14 +217,14 @@ export default {
                         el('p', { class: 'muted', style: { margin: '4px 0 0', fontSize: '.85rem' } }, t.note)))),
                   });
                 },
-              }, 'şablonlar'))),
+              }, 'templates'))),
           el('div', { class: 'note', style: { marginBottom: '14px' } }, randomNudge()),
           el('div', { class: 'row', style: { marginBottom: '14px' } },
             titleInput, timeInput, catInput,
-            el('button', { class: 'btn btn--primary', style: { flex: '0 0 auto' }, onClick: addTask }, '+ ekle')),
+            el('button', { class: 'btn btn--primary', style: { flex: '0 0 auto' }, onClick: addTask }, '+ add')),
           listBox,
           el('div', { class: 'field', style: { marginTop: '16px' } },
-            el('label', { class: 'field__label' }, 'günün notu'), note)));
+            el('label', { class: 'field__label' }, 'notes for the day'), note)));
     }
 
     clear(host).append(
@@ -239,7 +239,7 @@ export default {
             el('button', {
               class: 'btn btn--sm btn--ghost',
               onClick: () => { selected = todayISO(); weekStart = mondayOf(selected); drawWeek(); drawDay(); },
-            }, 'bugün'),
+            }, 'today'),
             el('button', {
               class: 'btn btn--sm',
               onClick: () => { weekStart.setDate(weekStart.getDate() + 7); drawWeek(); },

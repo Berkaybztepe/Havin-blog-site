@@ -35,14 +35,16 @@ export default {
           e.currentTarget.classList.add('is-on');
           setAffirm(dailyAffirmation(todayISO(), mood).t);
         },
-      }, `${m.emoji} ${m.label}`)));
+      },
+        el('span', { class: 'mood-dot', style: { '--dot': m.color } }),
+        m.label)));
 
     // --- favoriler ---
     const favBox = el('div', {});
     const drawFavs = () => {
       clear(favBox);
       if (!favs.length && !mine.length) {
-        favBox.append(el('p', { class: 'muted' }, 'Henüz kaydettiğin bir cümle yok.'));
+        favBox.append(el('p', { class: 'muted' }, 'You have not saved a line yet.'));
         return;
       }
       for (const t of mine) favBox.append(favRow(t, true));
@@ -51,7 +53,7 @@ export default {
     const favRow = (t, isMine) => el('div', { class: 'card card--tight card--flat', style: { marginBottom: '8px' } },
       el('p', { style: { margin: '0 0 6px', fontFamily: 'var(--font-head)', fontSize: '1.2rem' } }, t),
       el('div', { class: 'btn-row' },
-        isMine ? el('span', { class: 'chip' }, 'kendi cümlem') : null,
+        isMine ? el('span', { class: 'chip' }, 'my own line') : null,
         el('button', {
           class: 'btn btn--sm btn--ghost',
           onClick: async () => {
@@ -59,7 +61,7 @@ export default {
             else { favs.splice(favs.indexOf(t), 1); await repo.setDoc(KEY_FAVS, favs); }
             drawFavs();
           },
-        }, 'kaldır')));
+        }, 'remove')));
     drawFavs();
 
     // --- videolar ---
@@ -68,43 +70,43 @@ export default {
       clear(videoBox);
       if (!videos.length) {
         videoBox.append(el('p', { class: 'muted' },
-          'Henüz video eklemedin. Aşağıdaki aramalardan birini aç, beğendiğin videonun bağlantısını kopyala ve buraya ekle.'));
+          'You have not added anything yet. Open one of the searches below, copy the link of something you like and add it here.'));
         return;
       }
       for (const v of videos) {
         const ref = parseYouTube(v.url);
         videoBox.append(el('div', { class: 'card card--tight' },
-          ref ? youtubeFrame(ref) : el('p', { class: 'muted' }, 'bağlantı tanınmadı'),
-          el('p', { style: { margin: '8px 0 6px', fontWeight: '600' } }, v.title || 'video'),
+          ref ? youtubeFrame(ref) : el('p', { class: 'muted' }, 'link not recognised'),
+          el('p', { style: { margin: '8px 0 6px', fontWeight: '600' } }, v.title || 'song'),
           el('button', {
             class: 'btn btn--sm btn--ghost',
             onClick: async () => {
-              if (!await confirmDialog('Videoyu kaldır', 'Listeden çıkarılsın mı?', 'kaldır')) return;
+              if (!await confirmDialog('Remove', 'Remove it from the list?', 'remove')) return;
               videos.splice(videos.indexOf(v), 1);
               await repo.setDoc(KEY_VIDEOS, videos);
               drawVideos();
             },
-          }, 'kaldır')));
+          }, 'remove')));
       }
     };
     drawVideos();
 
     const addVideo = () => {
-      const url = el('input', { class: 'input', placeholder: 'YouTube bağlantısı' });
-      const title = el('input', { class: 'input', placeholder: 'ne bu? (isteğe bağlı)' });
+      const url = el('input', { class: 'input', placeholder: 'YouTube link' });
+      const title = el('input', { class: 'input', placeholder: 'what is it? (optional)' });
       modal({
-        title: 'video ekle',
+        title: 'add a song',
         body: el('div', {},
-          el('p', { class: 'muted' }, 'Video ya da çalma listesi bağlantısı yapıştır.'),
+          el('p', { class: 'muted' }, 'Paste a video or playlist link.'),
           url, el('div', { style: { height: '10px' } }), title),
-        actions: [{ label: 'vazgeç' }, {
-          label: 'ekle', kind: 'primary',
+        actions: [{ label: 'cancel' }, {
+          label: 'add', kind: 'primary',
           onClick: async () => {
-            if (!parseYouTube(url.value)) { toast('Bağlantı tanınmadı.', 'err'); return false; }
+            if (!parseYouTube(url.value)) { toast('That link was not recognised.', 'err'); return false; }
             videos.unshift({ url: url.value.trim(), title: title.value.trim() });
             await repo.setDoc(KEY_VIDEOS, videos);
             drawVideos();
-            toast('Eklendi.');
+            toast('Added.');
           },
         }],
       });
@@ -112,34 +114,34 @@ export default {
 
     clear(host).append(
       el('div', { class: 'card' },
-        el('h2', {}, 'bugünün cümlesi'),
-        el('p', { class: 'muted' }, 'nasıl hissettiğini seç; cümle ona göre gelsin.'),
+        el('h2', {}, 'today\'s line'),
+        el('p', { class: 'muted' }, 'pick how you feel, and the line will match it.'),
         moodRow,
         bigText,
         el('div', { class: 'btn-row', style: { justifyContent: 'center' } },
           el('button', {
             class: 'btn btn--sm',
             onClick: () => setAffirm(randomAffirmation(mood, currentText).t),
-          }, 'başka bir tane'),
+          }, 'another one'),
           el('button', {
             class: 'btn btn--sm',
             onClick: async () => {
-              if (favs.includes(currentText) || mine.includes(currentText)) { toast('Zaten kayıtlı.'); return; }
+              if (favs.includes(currentText) || mine.includes(currentText)) { toast('Already saved.'); return; }
               favs.unshift(currentText);
               await repo.setDoc(KEY_FAVS, favs);
               drawFavs();
-              toast('Kaydedildi.');
+              toast('Saved.');
             },
-          }, 'kaydet'),
+          }, 'save'),
           el('button', {
             class: 'btn btn--sm btn--ghost',
             onClick: () => {
-              const inp = el('textarea', { class: 'textarea', placeholder: 'kendi cümleni yaz…' });
+              const inp = el('textarea', { class: 'textarea', placeholder: 'write your own line…' });
               modal({
-                title: 'kendi cümlem',
+                title: 'my own line',
                 body: inp,
-                actions: [{ label: 'vazgeç' }, {
-                  label: 'kaydet', kind: 'primary',
+                actions: [{ label: 'cancel' }, {
+                  label: 'save', kind: 'primary',
                   onClick: async () => {
                     const t = inp.value.trim();
                     if (!t) return false;
@@ -147,15 +149,15 @@ export default {
                     await repo.setDoc(KEY_MINE, mine);
                     drawFavs();
                     setAffirm(t);
-                    toast('Kaydedildi.');
+                    toast('Saved.');
                   },
                 }],
               });
             },
-          }, 'kendim yazayım'))),
+          }, 'write my own'))),
 
       el('div', { class: 'card' },
-        el('h3', {}, 'bugün için küçük bir tören'),
+        el('h3', {}, 'a small ceremony for today'),
         el('p', { style: { fontSize: '1.1rem' } }, dailyRitual(todayISO())),
         el('button', {
           class: 'btn btn--sm btn--ghost',
@@ -163,15 +165,15 @@ export default {
             const p = e.currentTarget.previousElementSibling;
             p.textContent = RITUALS[Math.floor(Math.random() * RITUALS.length)];
           },
-        }, 'başka bir öneri')),
+        }, 'another suggestion')),
 
       el('div', { class: 'card' },
         el('div', { class: 'card__head' },
-          el('h3', {}, 'videolarım'),
-          el('button', { class: 'btn btn--sm btn--primary', onClick: addVideo }, '+ video ekle')),
+          el('h3', {}, 'my songs'),
+          el('button', { class: 'btn btn--sm btn--primary', onClick: addVideo }, '+ add a song')),
         videoBox,
-        el('h4', { style: { marginTop: '20px' } }, 'nereden bulurum?'),
-        el('p', { class: 'muted' }, 'Bunlar YouTube\'da arama açar. Beğendiğin videonun bağlantısını kopyalayıp yukarıdan ekle.'),
+        el('h4', { style: { marginTop: '20px' } }, 'where do I find them?'),
+        el('p', { class: 'muted' }, 'These open a search on YouTube. Copy the link of what you like and add it above.'),
         el('div', { class: 'tag-list' },
           YT_SEARCHES.map((s) => el('a', {
             class: 'chip-btn', target: '_blank', rel: 'noopener noreferrer',
@@ -180,7 +182,7 @@ export default {
           }, s.label)))),
 
       el('div', { class: 'card' },
-        el('h3', {}, 'kaydettiklerim'),
+        el('h3', {}, 'what I saved'),
         favBox));
   },
 

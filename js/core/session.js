@@ -25,7 +25,7 @@ const emit = (locked) => listeners.forEach((fn) => { try { fn(locked); } catch {
 export function isUnlocked() { return !!_dek; }
 
 export function getDEK() {
-  if (!_dek) throw new Error('Kasa kilitli.');
+  if (!_dek) throw new Error('The vault is locked.');
   return _dek;
 }
 
@@ -38,7 +38,7 @@ export async function getUsername() {
 
 // --- kurulum ---------------------------------------------------------------
 export async function createVault(username, password, hint) {
-  if (await store.vaultExists()) throw new Error('Bu cihazda zaten bir günlük var.');
+  if (await store.vaultExists()) throw new Error('There is already a diary on this device.');
 
   const salt = randomBytes(16);
   const kek = await deriveKEK(password, salt, KDF_ITERATIONS);
@@ -73,13 +73,13 @@ export async function createVault(username, password, hint) {
 // --- acma ------------------------------------------------------------------
 export async function unlock(password) {
   const meta = await store.readMeta();
-  if (!meta) throw new Error('Bu cihazda günlük bulunamadı.');
+  if (!meta) throw new Error('No diary found on this device.');
   const kek = await deriveKEK(password, meta.kdf.salt, meta.kdf.iterations);
   let dekBytes;
   try {
     dekBytes = await unwrapDEK(kek, meta.dekWrap.iv, meta.dekWrap.ct, AAD_DEK);
   } catch {
-    throw new Error('Şifre yanlış.');   // AES-GCM dogrulama hatasi = yanlis sifre
+    throw new Error('Wrong password.');   // AES-GCM dogrulama hatasi = yanlis sifre
   }
   _dek = await importDEK(dekBytes);
   dekBytes.fill(0);
@@ -91,14 +91,14 @@ export async function unlock(password) {
 
 export async function unlockWithRecovery(code) {
   const meta = await store.readMeta();
-  if (!meta || !meta.recovery) throw new Error('Bu günlükte kurtarma kodu yok.');
+  if (!meta || !meta.recovery) throw new Error('This diary has no recovery code.');
   const r = meta.recovery;
   const kek = await deriveKEK(normalizeRecoveryCode(code), r.salt, r.iterations);
   let dekBytes;
   try {
     dekBytes = await unwrapDEK(kek, r.iv, r.ct, AAD_REC);
   } catch {
-    throw new Error('Kurtarma kodu yanlış.');
+    throw new Error('Wrong recovery code.');
   }
   _dek = await importDEK(dekBytes);
   dekBytes.fill(0);
@@ -115,7 +115,7 @@ export async function changePassword(oldPassword, newPassword, hint) {
   try {
     dekBytes = await unwrapDEK(oldKek, meta.dekWrap.iv, meta.dekWrap.ct, AAD_DEK);
   } catch {
-    throw new Error('Mevcut şifre yanlış.');
+    throw new Error('Current password is wrong.');
   }
   const salt = randomBytes(16);
   const kek = await deriveKEK(newPassword, salt, KDF_ITERATIONS);

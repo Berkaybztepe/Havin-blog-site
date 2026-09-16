@@ -10,39 +10,41 @@ import { randomNudge } from '../data/planner.js';
 const MEAL_SCHEMA = {
   type: 'object',
   properties: {
-    yemek: { type: 'string' },
-    ogeler: { type: 'array', items: { type: 'string' } },
-    porsiyon_tahmini: { type: 'string' },
-    kalori: { type: 'integer' },
+    dish: { type: 'string' },
+    items: { type: 'array', items: { type: 'string' } },
+    portion_estimate: { type: 'string' },
+    calories: { type: 'integer' },
     protein_g: { type: 'number' },
-    karbonhidrat_g: { type: 'number' },
-    yag_g: { type: 'number' },
-    lif_g: { type: 'number' },
-    one_cikan_mikrolar: { type: 'array', items: { type: 'string' } },
-    guven: { type: 'string', enum: ['dusuk', 'orta', 'yuksek'] },
-    not: { type: 'string' },
+    carbs_g: { type: 'number' },
+    fat_g: { type: 'number' },
+    fibre_g: { type: 'number' },
+    notable_micronutrients: { type: 'array', items: { type: 'string' } },
+    confidence: { type: 'string', enum: ['low', 'medium', 'high'] },
+    note: { type: 'string' },
   },
-  required: ['yemek', 'ogeler', 'porsiyon_tahmini', 'kalori', 'protein_g',
-    'karbonhidrat_g', 'yag_g', 'lif_g', 'one_cikan_mikrolar', 'guven', 'not'],
+  // Yapilandirilmis cikti her nesnede bunlarin ikisini de sart kosuyor.
+  required: ['dish', 'items', 'portion_estimate', 'calories', 'protein_g',
+    'carbs_g', 'fat_g', 'fibre_g', 'notable_micronutrients', 'confidence', 'note'],
   additionalProperties: false,
 };
 
-const MEAL_SYSTEM = `Sen bir yemek fotografini inceleyip yaklasik besin degerlerini tahmin eden bir yardimcisin.
+const MEAL_SYSTEM = `You look at a photo of a meal and estimate its approximate nutrition.
 
-Kurallar:
-- Tahmin ettigini acikca belirt. Kesin konusma.
-- Porsiyonu fotograftaki kaba/tabaga gore tahmin et.
-- "not" alanina kisa, sicak ve YARGISIZ bir cumle yaz. Asla "az ye", "fazla kacmis",
-  "telafi et", "saglikli/saglıksız" gibi ifadeler kullanma. Yemegi iyi ya da kotu olarak siniflandirma.
-- Diyet onerisi verme, hedef koyma, kilo hakkinda konusma.
-- Emin degilsen "guven" alanini "dusuk" yap.
-- Turkce yaz.`;
+Rules:
+- Say clearly that you are estimating. Never sound certain.
+- Estimate the portion from the plate or bowl in the photo.
+- Put a short, warm, NON-JUDGEMENTAL sentence in "note". Never write things like
+  "eat less", "that's a lot", "make up for it", or "healthy/unhealthy". Do not sort food
+  into good and bad.
+- Do not give diet advice, do not set targets, do not talk about weight.
+- If you are unsure, set "confidence" to "low".
+- Write in English.`;
 
 export async function analyzeMealPhoto(apiKey, fileOrBlob, description, { signal } = {}) {
   const { base64, mediaType } = await prepareForAI(fileOrBlob);
   const userText = description
-    ? `Bu yemegin fotografi. Kullanicinin notu: "${description}". Besin degerlerini tahmin et.`
-    : 'Bu yemegin fotografi. Besin degerlerini tahmin et.';
+    ? `A photo of this meal. The person's note: "${description}". Estimate the nutrition.`
+    : 'A photo of this meal. Estimate the nutrition.';
 
   const res = await callClaude(apiKey, {
     max_tokens: 2000,
@@ -70,7 +72,7 @@ export async function analyzeMealPhoto(apiKey, fileOrBlob, description, { signal
     fat: clamp(data.yag_g, 400),
     fiber: clamp(data.lif_g, 200),
     micros: (data.one_cikan_mikrolar || []).slice(0, 8).map(String),
-    confidence: ['dusuk', 'orta', 'yuksek'].includes(data.guven) ? data.guven : 'dusuk',
+    confidence: ['dusuk', 'medium', 'yuksek'].includes(data.guven) ? data.guven : 'dusuk',
     note: String(data.not || ''),
   };
 }
@@ -81,7 +83,7 @@ export async function analyzeMealText(apiKey, description, { signal } = {}) {
     max_tokens: 2000,
     system: MEAL_SYSTEM,
     output_config: { effort: 'low', format: { type: 'json_schema', schema: MEAL_SCHEMA } },
-    messages: [{ role: 'user', content: `Su ogunun besin degerlerini tahmin et: "${description}"` }],
+    messages: [{ role: 'user', content: `Estimate the nutrition of this meal: "${description}"` }],
   }, { signal });
   const data = jsonOf(res);
   const clamp = (v, max) => Math.max(0, Math.min(Number(v) || 0, max));
@@ -93,39 +95,39 @@ export async function analyzeMealText(apiKey, description, { signal } = {}) {
     carbs: clamp(data.karbonhidrat_g, 800), fat: clamp(data.yag_g, 400),
     fiber: clamp(data.lif_g, 200),
     micros: (data.one_cikan_mikrolar || []).slice(0, 8).map(String),
-    confidence: ['dusuk', 'orta', 'yuksek'].includes(data.guven) ? data.guven : 'dusuk',
+    confidence: ['dusuk', 'medium', 'yuksek'].includes(data.guven) ? data.guven : 'dusuk',
     note: String(data.not || ''),
   };
 }
 
 // --- 2) Duygusal destek ----------------------------------------------------
-const SUPPORT_SYSTEM = `Sen, gunlugune yazan bir kisiye sicak ve yargisiz karsilik veren bir yoldassin.
-Doktor, diyetisyen ya da terapist DEGILSIN ve oyleymis gibi davranmazsin.
+const SUPPORT_SYSTEM = `You are a warm, non-judgemental companion replying to someone writing in their diary.
+You are NOT a doctor, dietitian or therapist, and you never act like one.
 
-Nasil yazarsin:
-- Turkce, sade, samimi. Kisa paragraflar. En fazla 150 kelime.
-- Once duyguyu karsila. Cozume atlama.
-- Merak et, sorgulama. Gerekirse tek bir nazik soru sor.
-- Kisi kendine kizdiysa, ona katilma ama savunmaya da gecme; yumusat.
+How you write:
+- English, plain, close. Short paragraphs. 150 words at most.
+- Meet the feeling first. Do not jump to solutions.
+- Be curious, not interrogating. Ask at most one gentle question.
+- If they are angry at themselves, do not agree with them, but do not argue either — soften it.
 
-Asla yapmayacaklarin:
-- Kalori, kilo, olcu, hedef, "telafi", "fazla kacirmissin", "yarin duzeltirsin" gibi ifadeler.
-- Yiyecekleri iyi/kotu, saglikli/saglıksız diye ayirmak.
-- Diyet, oruc, egzersizle telafi onermek.
-- Tani koymak ya da tibbi tavsiye vermek.
-- Vaaz vermek, ders vermek, "ama" ile baslayan duzeltmeler.
+Never:
+- Calories, weight, measurements, targets, "making up for it", "you overdid it", "you'll fix it tomorrow".
+- Sorting food into good/bad or healthy/unhealthy.
+- Suggesting diets, fasting, or compensating with exercise.
+- Diagnosing or giving medical advice.
+- Preaching, lecturing, or corrections that start with "but".
 
-Eger kisi kendine zarar vermekten, kusmaktan, uzun sureli ac kalmaktan ya da yasamak
-istememekten bahsediyorsa: panige kapilmadan, tek bir cumleyle guvendigi birine ya da
-bir uzmana ulasmasinin iyi gelebilecegini soyle. Sonra yine yanindaymis gibi devam et.`;
+If they mention self-harm, vomiting, long periods without eating, or not wanting to live:
+without panicking, say in one sentence that reaching someone they trust or a professional
+could help. Then carry on being alongside them.`;
 
 const KIND_LABEL = {
-  his: 'genel bir his', atak: 'bir yeme atagi', beden: 'bedeniyle ilgili bir zorlanma',
-  yemek: 'yemekle ilgili bir zorlanma', iyi: 'iyi giden bir sey',
+  feeling: 'a general feeling', binge: 'a binge', body: 'something difficult about their body',
+  food: 'something difficult about food', good: 'something that went well',
 };
 
 export async function supportResponse(apiKey, kind, text, { signal } = {}) {
-  if (!apiKey) return { text: localSupport(kind, text), source: 'yerel' };
+  if (!apiKey) return { text: localSupport(kind, text), source: 'local' };
   try {
     const res = await callClaude(apiKey, {
       max_tokens: 1200,
@@ -133,14 +135,14 @@ export async function supportResponse(apiKey, kind, text, { signal } = {}) {
       output_config: { effort: 'medium' },
       messages: [{
         role: 'user',
-        content: `Kullanici ${KIND_LABEL[kind] || 'bir sey'} paylasti:\n\n"${text}"\n\nOna karsilik ver.`,
+        content: `They shared ${KIND_LABEL[kind] || 'something'}:\n\n"${text}"\n\nReply to them.`,
       }],
     }, { signal });
     return { text: textOf(res), source: 'claude' };
   } catch (e) {
     if (e && e.name === 'AbortError') throw e;
     // Reddedilme dahil her hatada yerel kutuphaneye duseriz: kullanici bos kalmasin.
-    return { text: localSupport(kind, text), source: 'yerel', warning: e instanceof AIError ? e.message : null };
+    return { text: localSupport(kind, text), source: 'local', warning: e instanceof AIError ? e.message : null };
   }
 }
 
@@ -148,36 +150,36 @@ export async function supportResponse(apiKey, kind, text, { signal } = {}) {
 const PLAN_SCHEMA = {
   type: 'object',
   properties: {
-    ozet: { type: 'string' },
-    bloklar: {
+    summary: { type: 'string' },
+    blocks: {
       type: 'array',
       items: {
         type: 'object',
         properties: {
-          saat: { type: 'string' },
-          baslik: { type: 'string' },
-          kategori: { type: 'string', enum: ['genel', 'okul', 'kendime', 'spor', 'ev', 'sosyal'] },
+          time: { type: 'string' },
+          title: { type: 'string' },
+          category: { type: 'string', enum: ['general', 'work', 'me', 'move', 'home', 'people'] },
         },
-        required: ['saat', 'baslik', 'kategori'],
+        required: ['time', 'title', 'category'],
         additionalProperties: false,
       },
     },
   },
-  required: ['ozet', 'bloklar'],
+  required: ['summary', 'blocks'],
   additionalProperties: false,
 };
 
 export async function suggestDayPlan(apiKey, { note, energy, mustDo }, { signal } = {}) {
   if (!apiKey) {
-    return { ozet: randomNudge(), bloklar: [], source: 'yerel' };
+    return { summary: randomNudge(), blocks: [], source: 'local' };
   }
   const prompt = [
-    'Bugun icin gercekci bir gun plani cikar.',
-    energy ? `Enerji durumu: ${energy}.` : '',
-    mustDo ? `Mutlaka yapilmasi gerekenler: ${mustDo}.` : '',
-    note ? `Ek not: ${note}` : '',
-    'Kurallar: 5-8 blok. Saatler "HH:MM" biciminde. Molalari da yaz.',
-    'Enerji dusukse plani hafiflet, kendini zorlayan bir plan kurma. Turkce yaz.',
+    'Make a realistic plan for today.',
+    energy ? `Energy level: ${energy}.` : '',
+    mustDo ? `Must happen today: ${mustDo}.` : '',
+    note ? `Extra note: ${note}` : '',
+    'Rules: 5-8 blocks. Times in "HH:MM" format. Include the breaks.',
+    'If energy is low, lighten the plan; do not build something punishing. Write in English.',
   ].filter(Boolean).join(' ');
 
   try {
@@ -187,10 +189,10 @@ export async function suggestDayPlan(apiKey, { note, energy, mustDo }, { signal 
       messages: [{ role: 'user', content: prompt }],
     }, { signal });
     const data = jsonOf(res);
-    return { ozet: data.ozet || '', bloklar: (data.bloklar || []).slice(0, 12), source: 'claude' };
+    return { summary: data.summary || '', blocks: (data.blocks || []).slice(0, 12), source: 'claude' };
   } catch (e) {
     if (e && e.name === 'AbortError') throw e;
-    return { ozet: randomNudge(), bloklar: [], source: 'yerel', warning: e instanceof AIError ? e.message : null };
+    return { summary: randomNudge(), blocks: [], source: 'local', warning: e instanceof AIError ? e.message : null };
   }
 }
 
@@ -200,13 +202,13 @@ export async function personalSuggestions(apiKey, { growth, about }, { signal } 
   const res = await callClaude(apiKey, {
     max_tokens: 1500,
     output_config: { effort: 'low' },
-    system: 'Turkce yaz. Kisa ve somut ol. Vaaz verme, motivasyon klisesi kullanma.',
+    system: 'Write in English. Be short and concrete. No preaching, no motivational cliches.',
     messages: [{
       role: 'user',
-      content: `Bir kisi kendini su alanlarda gelistirmek istiyor: ${growth || '(belirtmemis)'}.
-Kendisi hakkinda: ${about || '(belirtmemis)'}.
-Ona bu hafta deneyebilecegi 3 somut, kucuk ve yapilabilir sey oner.
-Her biri tek cumle olsun. Madde isareti kullan, baslik yazma.`,
+      content: `Someone wants to grow in these areas: ${growth || '(not stated)'}.
+About them: ${about || '(not stated)'}.
+Suggest 3 concrete, small, doable things they could try this week.
+One sentence each. Use bullet points, no heading.`,
     }],
   }, { signal });
   return textOf(res);

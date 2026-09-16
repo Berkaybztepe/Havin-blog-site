@@ -86,7 +86,7 @@ export default {
       await save({ blogTitle: blogTitle.value, blogTagline: blogTagline.value });
       document.getElementById('blog-title').textContent = blogTitle.value;
       document.getElementById('blog-tagline').textContent = blogTagline.value;
-      toast('Kaydedildi.');
+      toast('Saved.');
     };
 
     // ---------- widget'lar ----------
@@ -111,14 +111,14 @@ export default {
           el('span', { class: 'widget-toggle__name' }, WIDGET_LABELS[id]),
           on ? el('div', { class: 'btn-row' },
             el('button', {
-              class: 'btn btn--sm btn--ghost', title: 'yukarı', disabled: active.indexOf(id) === 0,
+              class: 'btn btn--sm btn--ghost', title: 'up', disabled: active.indexOf(id) === 0,
               onClick: async () => {
                 const i = active.indexOf(id);
                 if (i > 0) { active.splice(i - 1, 0, active.splice(i, 1)[0]); await save({ widgets: active }); drawWidgets(); renderSidebar(document.getElementById('sidebar')); }
               },
             }, '↑'),
             el('button', {
-              class: 'btn btn--sm btn--ghost', title: 'aşağı', disabled: active.indexOf(id) === active.length - 1,
+              class: 'btn btn--sm btn--ghost', title: 'down', disabled: active.indexOf(id) === active.length - 1,
               onClick: async () => {
                 const i = active.indexOf(id);
                 if (i < active.length - 1) { active.splice(i + 1, 0, active.splice(i, 1)[0]); await save({ widgets: active }); drawWidgets(); renderSidebar(document.getElementById('sidebar')); }
@@ -134,20 +134,20 @@ export default {
 
     const saveKey = async () => {
       await save({ apiKey: apiKey.value.trim() });
-      toast('Anahtar kaydedildi (şifreli olarak).');
+      toast('Key saved (encrypted).');
     };
     const checkKey = async (e) => {
       const btn = e.currentTarget;
-      if (!apiKey.value.trim()) { toast('Önce anahtarı yapıştır.', 'warn'); return; }
+      if (!apiKey.value.trim()) { toast('Paste the key first.', 'warn'); return; }
       btn.disabled = true;
-      keyStatus.textContent = 'deneniyor…';
+      keyStatus.textContent = 'testing…';
       try {
         await testKey(apiKey.value.trim());
-        keyStatus.textContent = '✓ anahtar çalışıyor';
+        keyStatus.textContent = '✓ the key works';
         keyStatus.style.color = '#4f9d5c';
         await save({ apiKey: apiKey.value.trim() });
       } catch (err) {
-        keyStatus.textContent = '× ' + (err.message || 'olmadı');
+        keyStatus.textContent = '× ' + (err.message || 'did not work');
         keyStatus.style.color = '#d9435c';
       } finally { btn.disabled = false; }
     };
@@ -161,22 +161,22 @@ export default {
     });
 
     const changePw = () => {
-      const oldPw = el('input', { class: 'input', type: 'password', placeholder: 'mevcut şifre' });
-      const newPw = el('input', { class: 'input', type: 'password', placeholder: 'yeni şifre' });
-      const newPw2 = el('input', { class: 'input', type: 'password', placeholder: 'yeni şifre tekrar' });
-      const hint = el('input', { class: 'input', placeholder: 'yeni ipucu (isteğe bağlı)' });
+      const oldPw = el('input', { class: 'input', type: 'password', placeholder: 'current password' });
+      const newPw = el('input', { class: 'input', type: 'password', placeholder: 'new password' });
+      const newPw2 = el('input', { class: 'input', type: 'password', placeholder: 'repeat new password' });
+      const hint = el('input', { class: 'input', placeholder: 'new hint (optional)' });
       modal({
-        title: 'şifre değiştir',
+        title: 'change password',
         body: el('div', {}, oldPw, el('div', { style: { height: '9px' } }), newPw,
           el('div', { style: { height: '9px' } }), newPw2, el('div', { style: { height: '9px' } }), hint),
-        actions: [{ label: 'vazgeç' }, {
-          label: 'değiştir', kind: 'primary',
+        actions: [{ label: 'cancel' }, {
+          label: 'change', kind: 'primary',
           onClick: async () => {
-            if (newPw.value.length < 10) { toast('Yeni şifre en az 10 karakter olmalı.', 'err'); return false; }
-            if (newPw.value !== newPw2.value) { toast('Şifreler aynı değil.', 'err'); return false; }
+            if (newPw.value.length < 10) { toast('The new password must be at least 10 characters.', 'err'); return false; }
+            if (newPw.value !== newPw2.value) { toast('The passwords do not match.', 'err'); return false; }
             try {
               await session.changePassword(oldPw.value, newPw.value, hint.value);
-              toast('Şifre değiştirildi.');
+              toast('Password changed.');
             } catch (e) { toast(e.message, 'err'); return false; }
           },
         }],
@@ -187,8 +187,8 @@ export default {
     const storageBox = el('div', { class: 'muted' });
     (async () => {
       const [est, sum] = await Promise.all([storageEstimate(), vaultSummary()]);
-      const parts = [`${sum.docs} kayıt`, `${sum.blobs} fotoğraf`];
-      if (est) parts.push(`${fmtBytes(est.usage)} kullanılıyor`);
+      const parts = [`${sum.docs} records`, `${sum.blobs} photos`];
+      if (est) parts.push(`${fmtBytes(est.usage)} used`);
       storageBox.textContent = parts.join(' · ');
     })();
 
@@ -196,11 +196,11 @@ export default {
     importInput.addEventListener('change', async () => {
       const f = importInput.files && importInput.files[0];
       if (!f) return;
-      if (!await confirmDialog('Geri yükle',
-        'Bu cihazdaki her şeyin üzerine yazılacak. Devam edilsin mi?', 'geri yükle')) { importInput.value = ''; return; }
+      if (!await confirmDialog('Restore',
+        'Everything on this device will be overwritten. Continue?', 'restore')) { importInput.value = ''; return; }
       try {
         await importFromFile(f);
-        toast('Yüklendi. Şimdi o yedeğin şifresiyle girmen gerekiyor.');
+        toast('Restored. Now sign in with that backup’s password.');
         setTimeout(() => session.lock(), 900);
       } catch (e) { toast(e.message, 'err'); }
       importInput.value = '';
@@ -208,84 +208,84 @@ export default {
 
     const lastBackup = s.lastBackup
       ? `son yedek: ${new Date(s.lastBackup).toLocaleDateString('tr-TR')}`
-      : 'henüz hiç yedek almadın';
+      : 'you have not backed up yet';
 
     clear(host).append(
       // gorunum
       el('div', { class: 'card' },
-        el('h3', {}, 'görünüm'),
-        el('label', { class: 'field__label' }, 'tema'),
+        el('h3', {}, 'appearance'),
+        el('label', { class: 'field__label' }, 'theme'),
         themeGrid,
         el('div', { class: 'row', style: { marginTop: '16px' } },
-          el('div', {}, el('label', { class: 'field__label' }, 'gövde yazı tipi'), fontBody),
-          el('div', {}, el('label', { class: 'field__label' }, 'başlık yazı tipi'), fontHead)),
+          el('div', {}, el('label', { class: 'field__label' }, 'body font'), fontBody),
+          el('div', {}, el('label', { class: 'field__label' }, 'heading font'), fontHead)),
         el('div', { class: 'field', style: { marginTop: '12px' } },
-          el('label', { class: 'field__label' }, 'yazı boyutu'), fontScale),
+          el('label', { class: 'field__label' }, 'text size'), fontScale),
         el('div', { class: 'row' },
-          el('div', {}, el('label', { class: 'field__label' }, 'yazı rengi'),
+          el('div', {}, el('label', { class: 'field__label' }, 'text colour'),
             el('div', { class: 'row row--tight' },
               el('label', { class: 'switch' }, useInk, el('span', { class: 'switch__track' })), inkColor)),
-          el('div', {}, el('label', { class: 'field__label' }, 'vurgu rengi'),
+          el('div', {}, el('label', { class: 'field__label' }, 'accent colour'),
             el('div', { class: 'row row--tight' },
               el('label', { class: 'switch' }, useAccent, el('span', { class: 'switch__track' })), accentColor)))),
 
       // baslik
       el('div', { class: 'card' },
-        el('h3', {}, 'günlüğümün başlığı'),
-        el('div', { class: 'field' }, el('label', { class: 'field__label' }, 'başlık'), blogTitle),
-        el('div', { class: 'field' }, el('label', { class: 'field__label' }, 'alt yazı'), blogTagline),
+        el('h3', {}, 'my diary title'),
+        el('div', { class: 'field' }, el('label', { class: 'field__label' }, 'title'), blogTitle),
+        el('div', { class: 'field' }, el('label', { class: 'field__label' }, 'subtitle'), blogTagline),
         el('div', { class: 'btn-row btn-row--end' },
-          el('button', { class: 'btn btn--primary', onClick: saveHeader }, 'kaydet'))),
+          el('button', { class: 'btn btn--primary', onClick: saveHeader }, 'save'))),
 
       // widgetlar
       el('div', { class: 'card' },
-        el('h3', {}, 'kenar bölümü'),
-        el('p', { class: 'muted' }, 'hangi kutucuklar görünsün ve hangi sırada.'),
+        el('h3', {}, 'sidebar'),
+        el('p', { class: 'muted' }, 'which boxes show, and in what order.'),
         widgetBox),
 
       // yapay zeka
       el('div', { class: 'card' },
-        el('h3', {}, 'yapay zeka'),
+        el('h3', {}, 'AI'),
         el('p', { class: 'muted' },
-          'Anahtar eklersen: yemek fotoğrafından kalori/makro tahmini, duygusal destek ve gün planı açılır. ' +
-          'Anahtar olmadan da her şey çalışır — sadece bunlar hazır kütüphaneden gelir.'),
+          'Add a key and you get: nutrition estimates from a meal photo, emotional support, and day plans. ' +
+          'Everything works without a key too — those parts just come from the built-in library.'),
         el('div', { class: 'field' },
-          el('label', { class: 'field__label' }, 'Claude API anahtarı'), apiKey, keyStatus,
+          el('label', { class: 'field__label' }, 'Claude API key'), apiKey, keyStatus,
           el('p', { class: 'field__hint' },
-            'console.anthropic.com adresinden alınır. Anahtar şifreli olarak bu cihazda saklanır, ' +
-            'başka hiçbir yere gönderilmez. Kullanım sana faturalanır — düşük bir aylık limit koymanı öneririm.')),
+            'Get one at console.anthropic.com. The key is stored encrypted on this device, ' +
+            'and sent nowhere else. Usage is billed to you — I would set a low monthly limit.')),
         el('div', { class: 'btn-row' },
-          el('button', { class: 'btn btn--primary', onClick: saveKey }, 'kaydet'),
-          el('button', { class: 'btn', onClick: checkKey }, 'anahtarı dene'),
+          el('button', { class: 'btn btn--primary', onClick: saveKey }, 'save'),
+          el('button', { class: 'btn', onClick: checkKey }, 'test the key'),
           el('button', {
             class: 'btn btn--ghost',
-            onClick: async () => { apiKey.value = ''; await save({ apiKey: '' }); toast('Anahtar silindi.'); },
-          }, 'sil'))),
+            onClick: async () => { apiKey.value = ''; await save({ apiKey: '' }); toast('Key removed.'); },
+          }, 'delete'))),
 
       // guvenlik
       el('div', { class: 'card' },
-        el('h3', {}, 'güvenlik'),
+        el('h3', {}, 'security'),
         el('div', { class: 'field' },
-          el('label', { class: 'field__label' }, 'şu kadar hareketsizlikten sonra kilitle'), autoLock),
+          el('label', { class: 'field__label' }, 'lock after this much inactivity'), autoLock),
         el('div', { class: 'btn-row' },
-          el('button', { class: 'btn', onClick: changePw }, 'şifreyi değiştir'),
-          el('button', { class: 'btn btn--ghost', onClick: () => session.lock() }, 'şimdi kilitle')),
+          el('button', { class: 'btn', onClick: changePw }, 'change password'),
+          el('button', { class: 'btn btn--ghost', onClick: () => session.lock() }, 'lock now')),
         el('div', { class: 'note', style: { marginTop: '14px' } },
-          el('p', { style: { margin: '0 0 6px' } }, el('strong', {}, 'Bu şifreleme neyi korur?')),
+          el('p', { style: { margin: '0 0 6px' } }, el('strong', {}, 'What does this encryption protect?')),
           el('p', { style: { margin: '0 0 6px' } },
-            'Verin bu cihazdan hiç çıkmıyor ve şifrelenmiş olarak duruyor. Cihazını ele geçiren biri ' +
-            'şifreni bilmeden günlüğünü okuyamaz.'),
-          el('p', { style: { margin: 0 } }, el('strong', {}, 'Neyi korumaz: '),
-            'günlük açıkken cihazını eline alan biri her şeyi okur — bu yüzden otomatik kilit önemli. ' +
-            'Ayrıca yapay zeka özelliklerini kullandığında, gönderdiğin yazı ve fotoğraf o an şifresiz olarak ' +
-            'Anthropic sunucusuna gider.'))),
+            'Your data never leaves this device and is stored encrypted. Someone who gets hold of your device ' +
+            'cannot read your diary without your password.'),
+          el('p', { style: { margin: 0 } }, el('strong', {}, 'What it does not protect: '),
+            'anyone who picks up your device while the diary is open reads everything — which is why auto-lock matters. ' +
+            'Also, when you use the AI features, the text and photo you send travel unencrypted at that moment ' +
+            'to Anthropic’s servers.'))),
 
       // yedekleme
       el('div', { class: 'card' },
-        el('h3', {}, 'yedekleme'),
+        el('h3', {}, 'backup'),
         el('div', { class: 'note note--warn' },
-          'Verin yalnızca bu cihazda. Telefonunu değiştirirsen, uygulamayı silersen ya da tarayıcı ' +
-          'verileri temizlenirse günlüğün gider. Düzenli yedek al — başka cihaza taşımanın da yolu bu.'),
+          'Your data is only on this device. If you change phone, delete the app, or the browser ' +
+          'data is cleared, your diary is gone. Back up regularly — it is also how you move to another device.'),
         el('p', { class: 'muted', style: { marginTop: '12px' } }, lastBackup),
         storageBox,
         el('div', { class: 'btn-row', style: { marginTop: '12px' } },
@@ -294,36 +294,36 @@ export default {
             onClick: async () => {
               try {
                 const r = await exportToFile();
-                if (r) { await save({ lastBackup: Date.now() }); toast(`Yedek alındı (${fmtBytes(r.bytes)}).`); }
+                if (r) { await save({ lastBackup: Date.now() }); toast(`Backed up (${fmtBytes(r.bytes)}).`); }
               } catch (e) { toast(e.message, 'err'); }
             },
-          }, '↓ yedek al'),
-          el('button', { class: 'btn', onClick: () => importInput.click() }, '↑ yedekten geri yükle'),
+          }, '↓ back up'),
+          el('button', { class: 'btn', onClick: () => importInput.click() }, '↑ restore from backup'),
           el('button', {
             class: 'btn btn--ghost',
             onClick: async () => {
               const ok = await requestPersistence();
-              toast(ok ? 'Depolama kalıcı olarak işaretlendi.' :
-                'Tarayıcı bunu onaylamadı. Uygulamayı ana ekrana eklemek en güvenlisi.', ok ? 'ok' : 'warn');
+              toast(ok ? 'Storage marked as persistent.' :
+                'The browser did not grant it. Adding the app to your home screen is the safest option.', ok ? 'ok' : 'warn');
             },
-          }, 'depolamayı koru'),
+          }, 'protect storage'),
           importInput)),
 
       // tehlikeli bolge
       el('div', { class: 'card' },
-        el('h3', {}, 'her şeyi sil'),
-        el('p', { class: 'muted' }, 'bu cihazdaki günlüğü tamamen siler. geri alınamaz.'),
+        el('h3', {}, 'delete everything'),
+        el('p', { class: 'muted' }, 'this deletes the diary on this device completely. it cannot be undone.'),
         el('button', {
           class: 'btn btn--danger',
           onClick: async () => {
-            if (!await confirmDialog('Her şeyi sil',
-              'Tüm yazıların, fotoğrafların ve kayıtların silinecek. Bu geri alınamaz. Emin misin?', 'sil')) return;
-            if (!await confirmDialog('Son kez soruyorum',
-              'Yedek aldıysan sorun yok. Almadıysan her şey kaybolacak. Devam?', 'evet, sil')) return;
+            if (!await confirmDialog('Delete everything',
+              'All your entries, photos and records will be deleted. This cannot be undone. Are you sure?', 'delete')) return;
+            if (!await confirmDialog('Asking one last time',
+              'If you have a backup, fine. If not, everything is lost. Continue?', 'yes, delete')) return;
             await session.destroyEverything();
             location.reload();
           },
-        }, 'her şeyi sil')));
+        }, 'delete everything')));
   },
 
   async unmount() {},

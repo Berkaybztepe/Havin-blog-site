@@ -13,62 +13,62 @@ function strengthBar(pw) {
 
 // --- ilk kurulum -----------------------------------------------------------
 function setupForm(host, onUnlocked) {
-  const user = el('input', { class: 'input', type: 'text', autocomplete: 'username', placeholder: 'adın' });
-  const pw = el('input', { class: 'input', type: 'password', autocomplete: 'new-password', placeholder: 'şifre' });
-  const pw2 = el('input', { class: 'input', type: 'password', autocomplete: 'new-password', placeholder: 'şifre tekrar' });
-  const hint = el('input', { class: 'input', type: 'text', placeholder: 'şifre ipucu (isteğe bağlı)' });
+  const user = el('input', { class: 'input', type: 'text', autocomplete: 'username', placeholder: 'your name' });
+  const pw = el('input', { class: 'input', type: 'password', autocomplete: 'new-password', placeholder: 'password' });
+  const pw2 = el('input', { class: 'input', type: 'password', autocomplete: 'new-password', placeholder: 'repeat password' });
+  const hint = el('input', { class: 'input', type: 'text', placeholder: 'password hint (optional)' });
   const meterFill = el('div', { class: 'bar__fill', style: { width: '0%' } });
-  const meterText = el('div', { class: 'field__hint' }, 'en az 10 karakter kullan');
-  const btn = el('button', { class: 'btn btn--primary btn--block', type: 'submit' }, 'günlüğümü oluştur');
+  const meterText = el('div', { class: 'field__hint' }, 'use at least 10 characters');
+  const btn = el('button', { class: 'btn btn--primary btn--block', type: 'submit' }, 'create my diary');
 
   pw.addEventListener('input', () => {
     const s = strengthBar(pw.value);
     meterFill.style.width = Math.min(100, (s.bits / 90) * 100) + '%';
     meterFill.style.background = s.color;
-    meterText.textContent = pw.value ? `şifre gücü: ${s.label}` : 'en az 10 karakter kullan';
+    meterText.textContent = pw.value ? `password strength: ${s.label}` : 'use at least 10 characters';
   });
 
   const form = el('form', {
     onSubmit: async (e) => {
       e.preventDefault();
-      if (pw.value.length < 10) { toast('Şifre en az 10 karakter olmalı.', 'err'); return; }
-      if (pw.value !== pw2.value) { toast('Şifreler aynı değil.', 'err'); return; }
+      if (pw.value.length < 10) { toast('Password must be at least 10 characters.', 'err'); return; }
+      if (pw.value !== pw2.value) { toast('The passwords do not match.', 'err'); return; }
       btn.disabled = true;
-      btn.replaceChildren(el('span', { class: 'spinner' }), ' hazırlanıyor…');
+      btn.replaceChildren(el('span', { class: 'spinner' }), ' setting up…');
       try {
         const { recoveryCode } = await session.createVault(user.value.trim(), pw.value, hint.value.trim());
         showRecoveryCode(recoveryCode, onUnlocked);
       } catch (err) {
-        toast(err.message || 'Oluşturulamadı.', 'err');
+        toast(err.message || 'Could not create.', 'err');
         btn.disabled = false;
-        btn.textContent = 'günlüğümü oluştur';
+        btn.textContent = 'create my diary';
       }
     },
   },
-    el('div', { class: 'field' }, el('label', { class: 'field__label' }, 'kullanıcı adı'), user),
+    el('div', { class: 'field' }, el('label', { class: 'field__label' }, 'username'), user),
     el('div', { class: 'field' },
-      el('label', { class: 'field__label' }, 'şifre'), pw,
+      el('label', { class: 'field__label' }, 'password'), pw,
       el('div', { class: 'bar', style: { marginTop: '7px' } }, meterFill), meterText),
-    el('div', { class: 'field' }, el('label', { class: 'field__label' }, 'şifre tekrar'), pw2),
+    el('div', { class: 'field' }, el('label', { class: 'field__label' }, 'repeat password'), pw2),
     el('div', { class: 'field' }, el('label', { class: 'field__label' }, 'ipucu'), hint),
     btn);
 
   clear(host).append(
     el('h1', { class: 'lock__title' }, 'merhaba'),
-    el('p', { class: 'muted' }, 'burası sadece senin olacak. bir şifre belirle; ' +
-      'yazdığın her şey bu cihazda, şifreli olarak duracak.'),
+    el('p', { class: 'muted' }, 'this will be only yours. choose a password; ' +
+      'everything you write stays on this device, encrypted.'),
     form,
     el('div', { class: 'note note--warn', style: { marginTop: '16px', textAlign: 'left' } },
-      el('strong', {}, 'Bunu bilerek başla: '),
-      'şifreni unutursan günlüğünü kimse açamaz — ben de açamam. ' +
-      'Kurtarma kodunu birazdan vereceğim, onu bir yere yaz.'),
+      el('strong', {}, 'Start knowing this: '),
+      'if you forget your password nobody can open your diary — not even me. ' +
+      'I will give you a recovery code in a moment. Write it down somewhere.'),
     // Yeni bir cihaza gecerken ilk karsilasilan ekran burasi; yedegi
     // buradan yukleyebilmek cihaz degistirmenin tek yolu.
     el('div', { class: 'btn-row', style: { marginTop: '14px', justifyContent: 'center' } },
       el('button', {
         class: 'btn btn--ghost btn--sm', type: 'button',
         onClick: () => restoreDialog(host, onUnlocked),
-      }, 'zaten bir yedeğim var')),
+      }, 'I already have a backup')),
   );
 }
 
@@ -87,29 +87,29 @@ function showRecoveryCode(code, onUnlocked) {
   check.addEventListener('change', () => { confirmed = check.checked; });
 
   modal({
-    title: 'kurtarma kodun',
+    title: 'your recovery code',
     body: el('div', {},
-      el('p', {}, 'Şifreni unutursan günlüğünü açabilmenin tek yolu bu kod. ' +
-        'Bir kağıda yaz ya da güvendiğin bir yere kaydet.'),
+      el('p', {}, 'If you forget your password, this code is the only way back in. ' +
+        'Write it on paper or save it somewhere you trust.'),
       box,
       el('p', { class: 'muted', style: { marginTop: '12px' } },
-        'Bu kodu bir daha göremeyeceksin.'),
+        'You will not see this code again.'),
       el('div', { class: 'btn-row', style: { marginTop: '10px' } },
         el('button', {
           class: 'btn btn--sm', type: 'button',
           onClick: async () => {
-            try { await navigator.clipboard.writeText(code); toast('Kod kopyalandı.'); }
-            catch { toast('Kopyalanamadı, elle yaz.', 'warn'); }
+            try { await navigator.clipboard.writeText(code); toast('Code copied.'); }
+            catch { toast('Could not copy — write it down by hand.', 'warn'); }
           },
-        }, 'kopyala')),
+        }, 'copy')),
       el('label', { class: 'switch', style: { marginTop: '14px' } },
         check, el('span', { class: 'switch__track' }),
-        el('span', {}, 'kodu bir yere yazdım')),
+        el('span', {}, 'I wrote the code down')),
     ),
     actions: [{
-      label: 'devam et', kind: 'primary',
+      label: 'continue', kind: 'primary',
       onClick: () => {
-        if (!confirmed) { toast('Önce kodu bir yere yaz ve kutucuğu işaretle.', 'warn'); return false; }
+        if (!confirmed) { toast('Write the code down first, then tick the box.', 'warn'); return false; }
         onUnlocked();
       },
     }],
@@ -121,8 +121,8 @@ async function unlockForm(host, onUnlocked) {
   const username = await session.getUsername();
   const hint = await session.getHint();
 
-  const pw = el('input', { class: 'input', type: 'password', autocomplete: 'current-password', placeholder: 'şifren' });
-  const btn = el('button', { class: 'btn btn--primary btn--block', type: 'submit' }, 'gir');
+  const pw = el('input', { class: 'input', type: 'password', autocomplete: 'current-password', placeholder: 'your password' });
+  const btn = el('button', { class: 'btn btn--primary btn--block', type: 'submit' }, 'enter');
   const err = el('div', { class: 'field__hint', style: { color: '#d9435c', minHeight: '1.2em' } });
 
   const form = el('form', {
@@ -130,17 +130,17 @@ async function unlockForm(host, onUnlocked) {
       e.preventDefault();
       err.textContent = '';
       btn.disabled = true;
-      btn.replaceChildren(el('span', { class: 'spinner' }), ' açılıyor…');
+      btn.replaceChildren(el('span', { class: 'spinner' }), ' opening…');
       try {
         await session.unlock(pw.value);
         onUnlocked();
       } catch (ex) {
-        err.textContent = ex.message || 'Açılamadı.';
+        err.textContent = ex.message || 'Could not open.';
         pw.value = '';
         pw.focus();
       } finally {
         btn.disabled = false;
-        btn.textContent = 'gir';
+        btn.textContent = 'enter';
       }
     },
   },
@@ -149,18 +149,18 @@ async function unlockForm(host, onUnlocked) {
 
   clear(host).append(
     el('h1', { class: 'lock__title' }, username ? `merhaba ${username}` : 'merhaba'),
-    el('p', { class: 'muted' }, 'günlüğün kilitli.'),
+    el('p', { class: 'muted' }, 'your diary is locked.'),
     form,
     hint ? el('p', { class: 'muted', style: { marginTop: '12px' } }, `ipucu: ${hint}`) : null,
     el('div', { class: 'btn-row', style: { marginTop: '14px', justifyContent: 'center' } },
       el('button', {
         class: 'btn btn--ghost btn--sm', type: 'button',
         onClick: () => recoveryDialog(onUnlocked),
-      }, 'şifremi unuttum'),
+      }, 'I forgot my password'),
       el('button', {
         class: 'btn btn--ghost btn--sm', type: 'button',
         onClick: () => restoreDialog(host, onUnlocked),
-      }, 'yedekten geri yükle')),
+      }, 'restore from backup')),
   );
 }
 
@@ -171,21 +171,21 @@ function recoveryDialog(onUnlocked) {
   });
   const err = el('div', { class: 'field__hint', style: { color: '#d9435c' } });
   modal({
-    title: 'kurtarma kodu',
+    title: 'recovery code',
     body: el('div', {},
-      el('p', { class: 'muted' }, 'Kurulum sırasında verdiğim kodu gir.'),
+      el('p', { class: 'muted' }, 'Enter the code I gave you during setup.'),
       input, err),
     actions: [
-      { label: 'vazgeç' },
+      { label: 'cancel' },
       {
-        label: 'aç', kind: 'primary',
+        label: 'open', kind: 'primary',
         onClick: async () => {
           try {
             await session.unlockWithRecovery(input.value);
-            toast('Girildi. Ayarlardan yeni bir şifre belirlemeyi unutma.');
+            toast('You are in. Remember to set a new password in Settings.');
             onUnlocked();
           } catch (e) {
-            err.textContent = e.message || 'Açılamadı.';
+            err.textContent = e.message || 'Could not open.';
             return false;
           }
         },
@@ -197,25 +197,25 @@ function recoveryDialog(onUnlocked) {
 function restoreDialog(host, onUnlocked) {
   const file = el('input', { class: 'input', type: 'file', accept: '.json,application/json' });
   modal({
-    title: 'yedekten geri yükle',
+    title: 'restore from backup',
     body: el('div', {},
       el('div', { class: 'note note--warn' },
-        'Bu işlem bu cihazdaki mevcut günlüğün üzerine yazar.'),
+        'This overwrites the diary currently on this device.'),
       el('p', { class: 'muted', style: { marginTop: '12px' } },
-        'Daha önce aldığın .havin.json dosyasını seç. Açmak için o yedeğin şifresini kullanacaksın.'),
+        'Pick the .havin.json file you saved earlier. You will open it with that backup’s password.'),
       file),
     actions: [
-      { label: 'vazgeç' },
+      { label: 'cancel' },
       {
-        label: 'geri yükle', kind: 'danger',
+        label: 'restore', kind: 'danger',
         onClick: async () => {
-          if (!file.files || !file.files[0]) { toast('Bir dosya seç.', 'warn'); return false; }
+          if (!file.files || !file.files[0]) { toast('Choose a file.', 'warn'); return false; }
           try {
             await importFromFile(file.files[0]);
-            toast('Yedek yüklendi. Şimdi o yedeğin şifresiyle gir.');
+            toast('Backup restored. Now sign in with that backup’s password.');
             mountLock(host, { onUnlocked });
           } catch (e) {
-            toast(e.message || 'Yüklenemedi.', 'err');
+            toast(e.message || 'Could not load.', 'err');
             return false;
           }
         },

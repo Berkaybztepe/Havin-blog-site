@@ -179,7 +179,7 @@ export default {
     }
 
     function removeItem(item) {
-      confirmDialog('Kaldır', 'Bu öğe panodan kaldırılsın mı?', 'kaldır').then(async (ok) => {
+      confirmDialog('Remove', 'Remove this item from the board?', 'remove').then(async (ok) => {
         if (!ok) return;
         const i = items.indexOf(item);
         if (i >= 0) items.splice(i, 1);
@@ -195,9 +195,9 @@ export default {
       const ta = el('textarea', { class: 'textarea' });
       ta.value = item.text || '';
       modal({
-        title: 'not', body: ta,
-        actions: [{ label: 'vazgeç' }, {
-          label: 'kaydet', kind: 'primary',
+        title: 'note', body: ta,
+        actions: [{ label: 'cancel' }, {
+          label: 'save', kind: 'primary',
           onClick: async () => {
             item.text = ta.value;
             const n = nodes.get(item.id);
@@ -245,7 +245,7 @@ export default {
           const bid = await repo.saveImage(bytes, mime);
           const w = 260;
           await addItem({ type: 'image', blobId: bid, w, h: Math.round(w * (height / width)) });
-        } catch (e) { toast('Eklenemedi: ' + e.message, 'err'); }
+        } catch (e) { toast('Could not add: ' + e.message, 'err'); }
       }
       fileInput.value = '';
     });
@@ -253,18 +253,18 @@ export default {
     const addFromURL = () => {
       const inp = el('input', { class: 'input', placeholder: 'https://i.pinimg.com/…' });
       modal({
-        title: 'bağlantıdan görsel ekle',
+        title: 'add an image from a link',
         body: el('div', {},
           el('p', { class: 'muted' },
-            'Pinterest\'te görsele uzun basıp "görseli kopyala/aç" ile doğrudan resim bağlantısını al ve buraya yapıştır.'),
+            'On Pinterest, long-press the image and use "copy image address" to get the direct link, then paste it here.'),
           inp,
           el('p', { class: 'field__hint' },
-            'Görsel indirilip cihazına şifreli olarak kaydedilir; sonradan çevrimdışı da görünür.')),
-        actions: [{ label: 'vazgeç' }, {
-          label: 'ekle', kind: 'primary',
+            'The image is downloaded and stored encrypted on your device, so it works offline later.')),
+        actions: [{ label: 'cancel' }, {
+          label: 'add', kind: 'primary',
           onClick: async () => {
             const url = inp.value.trim();
-            if (!/^https?:\/\//i.test(url)) { toast('Geçerli bir bağlantı gir.', 'err'); return false; }
+            if (!/^https?:\/\//i.test(url)) { toast('Enter a valid link.', 'err'); return false; }
             try {
               const res = await fetch(url, { mode: 'cors' });
               if (!res.ok) throw new Error('indirilemedi');
@@ -273,9 +273,9 @@ export default {
               const bid = await repo.saveImage(bytes, mime);
               const w = 260;
               await addItem({ type: 'image', blobId: bid, w, h: Math.round(w * (height / width)) });
-              toast('Eklendi.');
+              toast('Added.');
             } catch {
-              toast('Bu görsel indirilemedi. Kaydedip "fotoğraf ekle" ile yükleyebilirsin.', 'err');
+              toast('That image could not be downloaded. Save it and use "photo" to upload it instead.', 'err');
               return false;
             }
           },
@@ -291,24 +291,24 @@ export default {
     clear(host).append(
       el('div', { class: 'card card--tight' },
         el('div', { class: 'btn-row' },
-          el('button', { class: 'btn btn--sm btn--primary', onClick: () => fileInput.click() }, 'fotoğraf'),
+          el('button', { class: 'btn btn--sm btn--primary', onClick: () => fileInput.click() }, 'photo'),
           el('button', {
             class: 'btn btn--sm',
             onClick: () => {
               const m = modal({
-                title: 'çıkartma seç', wide: true,
+                title: 'pick a sticker', wide: true,
                 body: stickerPicker(async (s) => { await addItem({ type: 'sticker', stickerId: s.id, w: 130, h: 130 }); m.close(); }),
               });
             },
-          }, 'çıkartma'),
+          }, 'sticker'),
           el('button', {
             class: 'btn btn--sm',
-            onClick: () => addItem({ type: 'note', text: 'buraya yaz…', w: 220, h: 200 }),
-          }, 'not'),
-          el('button', { class: 'btn btn--sm', onClick: addFromURL }, 'bağlantıdan'),
+            onClick: () => addItem({ type: 'note', text: 'write here…', w: 220, h: 200 }),
+          }, 'note'),
+          el('button', { class: 'btn btn--sm', onClick: addFromURL }, 'from a link'),
           fileInput),
         el('p', { class: 'field__hint', style: { marginTop: '8px' } },
-          'Öğeye dokun: köşelerde boyutlandırma, döndürme ve silme düğmeleri çıkar. Nota çift dokunarak yazısını değiştir.')),
+          'Tap an item: handles appear at the corners to resize, rotate and delete. Double-tap a note to change its text.')),
       wrap);
 
     fit();

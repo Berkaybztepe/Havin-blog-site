@@ -50,6 +50,7 @@
 }
 .editor:focus { outline: none; border-color: var(--accent); }
 .editor:empty::before { content: attr(data-placeholder); color: var(--ink-soft); pointer-events: none; }
+.editor.is-dropping { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 5%, transparent); }
 
 .filter-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 18px; }
 
@@ -135,6 +136,12 @@
 .week__num { font-family: var(--font-head); font-size: 1.6rem; line-height: 1; }
 .week__dots { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 5px; }
 .week__dot { width: 7px; height: 7px; border-radius: 50%; }
+
+/* Mini takvimde o gunun ruh hali */
+.week-mood {
+  display: block; width: 5px; height: 5px; border-radius: 50%;
+  background: var(--dot); margin: 2px auto 0;
+}
 
 .task {
   display: flex; align-items: flex-start; gap: 11px;
@@ -236,6 +243,45 @@ div.meal__thumb { background: transparent; border-style: dashed; }
   font-weight: 400;
   line-height: 1.45; text-align: center; padding: 30px 16px;
 }
+/* Yaziya ilistirilen sarki: kapali bir kart, tiklayinca oynatici aciliyor. */
+.song {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  margin: 0 0 18px;
+  overflow: hidden;
+  background: var(--chip);
+}
+.song__button {
+  display: flex; align-items: center; gap: 12px;
+  width: 100%; min-height: var(--tap); padding: 12px 14px;
+  background: none; border: 0; cursor: pointer; text-align: left;
+  font: inherit; color: var(--ink);
+}
+.song__button:hover { background: color-mix(in srgb, var(--accent) 6%, transparent); }
+.song__note { color: var(--accent); font-size: 1.15rem; line-height: 1; flex: 0 0 auto; }
+.song__text { display: flex; flex-direction: column; gap: 1px; flex: 1 1 auto; min-width: 0; }
+.song__label {
+  font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft);
+}
+.song__title { font-size: .95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.song__play { color: var(--ink-soft); font-size: .8rem; flex: 0 0 auto; }
+.song.is-open .song__play { opacity: .4; }
+.song__slot:not(:empty) { border-top: 1px solid var(--line); }
+
+.post-card__song {
+  font-size: .85rem; color: var(--ink-soft); margin: 0 0 10px;
+}
+
+/* Editordeki sarki secme satiri */
+.song-pick {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin: 12px 0 4px;
+}
+.song-pick__title {
+  flex: 1 1 140px; min-width: 0; font-size: .92rem;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
 .video-frame {
   position: relative; width: 100%; aspect-ratio: 16/9;
   border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--line); background: #000;

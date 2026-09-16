@@ -57,7 +57,7 @@ export async function exportToFile() {
   const text = JSON.stringify(dump);
   const blob = new Blob([text], { type: 'application/json' });
   const stamp = new Date().toISOString().slice(0, 10);
-  const name = `icimden-yedek-${stamp}.havin.json`;
+  const name = `from-within-backup-${stamp}.havin.json`;
 
   // APK icinde: WebView blob: indirmelerini desteklemiyor, bu yuzden dosyayi
   // Android tarafina verip oraya kaydettiriyoruz (kullanici konumu seciyor).
@@ -88,13 +88,13 @@ export async function importFromFile(file) {
   try {
     dump = JSON.parse(await file.text());
   } catch {
-    throw new Error('Bu dosya okunamadı. Yedek dosyası bozulmuş olabilir.');
+    throw new Error('This file could not be read. The backup may be corrupted.');
   }
   if (!dump || dump.magic !== 'havin-blog-backup') {
-    throw new Error('Bu bir günlük yedeği değil.');
+    throw new Error('This is not a diary backup.');
   }
   if (dump.fileVersion > FILE_VERSION) {
-    throw new Error('Bu yedek, uygulamanın daha yeni bir sürümünden. Önce uygulamayı güncelle.');
+    throw new Error('This backup is from a newer version of the app. Update the app first.');
   }
   await idbClearAll();
   for (const [store, rows] of Object.entries(dump.stores || {})) {

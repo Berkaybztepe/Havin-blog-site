@@ -19,7 +19,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
  * Donen deger ham API yanitidir.
  */
 export async function callClaude(apiKey, body, { retries = 2, signal } = {}) {
-  if (!apiKey) throw new AIError('API anahtarı girilmemiş.', 'no-key');
+  if (!apiKey) throw new AIError('No API key has been entered.', 'no-key');
 
   let attempt = 0;
   for (;;) {
@@ -38,7 +38,7 @@ export async function callClaude(apiKey, body, { retries = 2, signal } = {}) {
       });
     } catch (e) {
       if (e && e.name === 'AbortError') throw e;
-      throw new AIError('İnternete ulaşılamadı. Bağlantını kontrol et.', 'network');
+      throw new AIError('Could not reach the internet. Check your connection.', 'network');
     }
 
     if (res.ok) return res.json();
@@ -55,11 +55,11 @@ export async function callClaude(apiKey, body, { retries = 2, signal } = {}) {
     let detail = '';
     try { const j = await res.json(); detail = (j.error && j.error.message) || ''; } catch {}
 
-    if (res.status === 401) throw new AIError('API anahtarı geçersiz. Ayarlardan kontrol et.', 'auth');
-    if (res.status === 400) throw new AIError('İstek kabul edilmedi' + (detail ? ': ' + detail : '.'), 'bad-request');
-    if (res.status === 429) throw new AIError('Çok fazla istek gönderildi. Biraz bekleyip tekrar dene.', 'rate');
-    if (res.status === 529 || res.status >= 500) throw new AIError('Servis şu an yoğun. Birazdan tekrar dene.', 'overloaded');
-    throw new AIError('Beklenmedik bir hata oldu' + (detail ? ': ' + detail : ` (${res.status}).`), 'unknown');
+    if (res.status === 401) throw new AIError('The API key is not valid. Check it in Settings.', 'auth');
+    if (res.status === 400) throw new AIError('The request was rejected' + (detail ? ': ' + detail : '.'), 'bad-request');
+    if (res.status === 429) throw new AIError('Too many requests. Wait a moment and try again.', 'rate');
+    if (res.status === 529 || res.status >= 500) throw new AIError('The service is busy right now. Try again shortly.', 'overloaded');
+    throw new AIError('Something unexpected went wrong' + (detail ? ': ' + detail : ` (${res.status}).`), 'unknown');
   }
 }
 
@@ -68,7 +68,7 @@ export function textOf(response) {
   if (!response) return '';
   // stop_reason kontrolu icerige bakmadan ONCE yapilmali
   if (response.stop_reason === 'refusal') {
-    throw new AIError('Bu konuda yanıt üretilemedi. İstersen farklı bir şekilde yazmayı dene.', 'refusal');
+    throw new AIError('No reply could be produced for this. You could try writing it a different way.', 'refusal');
   }
   return (response.content || [])
     .filter((b) => b.type === 'text')
@@ -80,14 +80,14 @@ export function textOf(response) {
 /** Yapilandirilmis cikti icin: metni JSON olarak cozer. */
 export function jsonOf(response) {
   const text = textOf(response);
-  if (!text) throw new AIError('Boş yanıt geldi.', 'empty');
+  if (!text) throw new AIError('The reply came back empty.', 'empty');
   try {
     return JSON.parse(text);
   } catch {
     // nadiren metin icine gomulu gelebilir
     const m = text.match(/\{[\s\S]*\}/);
     if (m) { try { return JSON.parse(m[0]); } catch {} }
-    throw new AIError('Yanıt beklenen biçimde değil.', 'parse');
+    throw new AIError('The reply is not in the expected format.', 'parse');
   }
 }
 

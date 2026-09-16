@@ -24,7 +24,7 @@ async function decode(file, maxEdge) {
     const img = new Image();
     const url = URL.createObjectURL(file);
     img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
-    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Gorsel okunamadi')); };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Could not read the image')); };
     img.src = url;
   });
 }

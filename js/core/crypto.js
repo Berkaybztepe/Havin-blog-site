@@ -22,7 +22,7 @@ function deriveBitsInWorker(password, salt, iterations) {
     const w = new Worker(new URL('../workers/kdf-worker.js', import.meta.url), { type: 'module' });
     const done = (fn) => (e) => { w.terminate(); fn(e); };
     w.onmessage = done((e) => e.data.ok ? resolve(new Uint8Array(e.data.bits)) : reject(new Error(e.data.error)));
-    w.onerror = done((e) => reject(new Error(e.message || 'Anahtar turetilemedi')));
+    w.onerror = done((e) => reject(new Error(e.message || 'Could not derive the key')));
     w.postMessage({ password, salt, iterations });
   });
 }
@@ -107,7 +107,7 @@ export function normalizeRecoveryCode(s) {
 // --- sifre gucu ------------------------------------------------------------
 // Kabaca tahmin entropisi. Amac kesin olcum degil, kullaniciya durust geri bildirim.
 export function passwordStrength(pw) {
-  if (!pw) return { bits: 0, label: 'bos', level: 0 };
+  if (!pw) return { bits: 0, label: 'empty', level: 0 };
   let pool = 0;
   if (/[a-z]/.test(pw)) pool += 26;
   if (/[A-Z]/.test(pw)) pool += 26;
@@ -119,7 +119,7 @@ export function passwordStrength(pw) {
   if (uniq < pw.length) bits *= (uniq / pw.length) * 0.5 + 0.5;
   if (/^[0-9]+$/.test(pw)) bits *= 0.5;
   const level = bits < 40 ? 1 : bits < 60 ? 2 : bits < 80 ? 3 : 4;
-  const label = ['bos', 'cok zayif', 'zayif', 'iyi', 'guclu'][level];
+  const label = ['empty', 'very weak', 'weak', 'good', 'strong'][level];
   return { bits: Math.round(bits), label, level };
 }
 

@@ -34,11 +34,11 @@ export const DEFAULT_SETTINGS = {
   fontScale: 1,
   textColor: '',
   accent: '',
-  blogTitle: 'içimden',
-  blogTagline: 'buraya her şeyi yazabilirim. neşeli günleri de, ağır olanları da.',
+  blogTitle: 'from within',
+  blogTagline: 'I can write anything here. The happy days and the heavy ones.',
   gentleMode: false,
   autoLockMinutes: 15,
-  widgets: ['saat', 'olumlama', 'takvim', 'ruhhali', 'izliyorum', 'playlist', 'sayac'],
+  widgets: ['saat', 'affirmations', 'takvim', 'ruhhali', 'izliyorum', 'playlist', 'sayac'],
   apiKey: '',
   aiEnabled: true,
   lastBackup: null,
@@ -101,9 +101,11 @@ export async function savePost(post) {
   const full = { ...post, id, created: post.created || Date.now(), updated: Date.now() };
   await store.putDoc(getDEK(), `post:${id}`, full);
   const meta = {
-    id, date: full.date || todayISO(), title: full.title || '(başlıksız)',
-    excerpt: excerptOf(full.html), category: full.category || 'kisisel',
+    id, date: full.date || todayISO(), title: full.title || '(untitled)',
+    excerpt: excerptOf(full.html), category: full.category || 'personal',
     mood: full.mood || '', tags: full.tags || [], coverBlobId: (full.blobIds || [])[0] || null,
+    // Yaziya ilistirilen sarki liste ekraninda da gorunsun diye dizinde tutuluyor.
+    song: full.song || null,
     created: full.created,
   };
   const i = ix.posts.findIndex((p) => p.id === id);
@@ -158,7 +160,7 @@ export async function saveMeal(meal) {
   const full = { ...meal, id, created: meal.created || Date.now() };
   await store.putDoc(getDEK(), `meal:${id}`, full);
   const meta = {
-    id, date: full.date || todayISO(), name: full.name || 'öğün', slot: full.slot || '',
+    id, date: full.date || todayISO(), name: full.name || 'meal', slot: full.slot || '',
     kcal: Number(full.kcal) || 0, protein: Number(full.protein) || 0,
     carbs: Number(full.carbs) || 0, fat: Number(full.fat) || 0,
     blobId: full.blobId || null, feeling: full.feeling || '', created: full.created,
@@ -192,7 +194,7 @@ export async function saveWorkout(w) {
   const full = { ...w, id, created: w.created || Date.now() };
   await store.putDoc(getDEK(), `workout:${id}`, full);
   const meta = {
-    id, date: full.date || todayISO(), name: full.name || 'antrenman',
+    id, date: full.date || todayISO(), name: full.name || 'session',
     exercises: (full.exercises || []).length, minutes: Number(full.minutes) || 0, created: full.created,
   };
   const i = ix.workouts.findIndex((x) => x.id === id);

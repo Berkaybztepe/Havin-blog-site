@@ -1,6 +1,8 @@
-# içimden
+# from within
 
 Kişisel, **şifreli**, tek kişilik bir günlük. Sade, sessiz, yazının öne çıktığı bir defter.
+
+> Uygulamanın arayüzü İngilizce; bu README senin için Türkçe.
 
 Hem **Android uygulaması (APK)** hem de tarayıcıda çalışan bir site olarak kullanılabilir.
 
@@ -10,7 +12,7 @@ Hem **Android uygulaması (APK)** hem de tarayıcıda çalışan bir site olarak
 
 | Bölüm | Ne yapar |
 |---|---|
-| **Günlük** | Yazılar; kişisel / akademik / derin / karalama kategorileri. Her yazı için ayrı yazı tipi (el yazısı dahil), boyut, renk, hizalama. Fotoğraf, çıkartma, YouTube gömme. Arama ve etiketler. |
+| **Günlük** (diary) | Yazılar; personal / academic / deep / scribbles kategorileri. Her yazı için ayrı yazı tipi (el yazısı dahil), boyut, renk, hizalama. **Yazıya bir şarkı iliştirme** (aşağıda), fotoğraf (yükle, sürükle-bırak ya da yapıştır), çıkartma, metin içine video gömme. Arama ve etiketler. |
 | **Profilim** | Fotoğraf, kendini tanıtma alanları, gelişim alanları, 57 kültürlenme önerisi, pinleyip üzerine not alabildiğin pano. |
 | **Olumlama** | 46 Türkçe olumlama — ruh hâline göre seçiliyor. Kendi YouTube listeni kurarsın. Günlük "küçük tören" önerileri. |
 | **Pano** | Serbest yerleşimli mood board: fotoğraf, 18 çıkartma ve not kâğıtları; parmakla sürükle, boyutlandır, döndür. |
@@ -21,13 +23,31 @@ Hem **Android uygulaması (APK)** hem de tarayıcıda çalışan bir site olarak
 ### Görünüm
 
 Varsayılan tema **sade**: sıcak kâğıt zemin, saç teli kenarlıklar, gölge yok, bol boşluk.
-Gövde yazısı **Inter**, başlıklar **Newsreader**. Süsleme emojisi yok — tek istisna, kendi
-hâlini seçtiğin ruh hâli düğmeleri.
+Gövde yazısı **Inter**, başlıklar **Newsreader**. Uygulamada hiç emoji yok: ruh hâlleri
+sessiz birer **renk noktası** ve kelimeyle gösteriliyor, o günün rengi mini takvimde de
+görünüyor.
 
 Ayarlar → görünüm'den değiştirebileceklerin: 7 tema (sade · krem dantel · toskana · kiraz ·
 koyu toile · gece · 2000'ler), gövde ve başlık yazı tipi, yazı boyutu, yazı rengi, vurgu rengi.
 Her günlük yazısı ayrıca kendi yazı tipini, boyutunu ve rengini taşıyabiliyor — el yazısı
 fontları bunun için duruyor.
+
+### Yazıya şarkı iliştirme
+
+Bir yazıyı bir şarkıyla anlatmak istediğinde: yazarken **"♪ add a song for this entry"**
+düğmesine bas, YouTube bağlantısını yapıştır. Şarkı yazının en üstünde bir kart olarak
+görünür; **üstüne dokununca çalar.** Çalma listesi de olur.
+
+Kart kapalı başlar — yani her yazıyı açtığında boş yere YouTube'a istek gitmez, ancak sen
+dokunduğunda yüklenir.
+
+Metnin ortasına video gömmek istersen, editördeki **song** düğmesi bunu yapar.
+Bir YouTube bağlantısını doğrudan yazının içine yapıştırırsan, hangisini istediğini sorar.
+
+### Fotoğraf ekleme
+
+Üç yolu var: editördeki **photo** düğmesi, dosyayı **yazı alanına sürükleyip bırakmak**,
+ya da panodaki bir görseli **doğrudan yapıştırmak** (ekran görüntüsü için pratik).
 
 ### Nazik mod
 Mutfak bölümünde tek dokunuşla tüm rakamlar gizlenir; sadece ne yediğin ve nasıl hissettiğin kalır.
@@ -40,7 +60,7 @@ diyet dili kullanmaz. Burası bir doktor değil; zorlanma uzun sürerse bir uzma
 
 ### Android uygulaması (önerilen)
 
-1. `android/out/icimden.apk` dosyasını telefona/tablete indir.
+1. `android/out/from-within.apk` dosyasını telefona/tablete indir.
 2. Aç. Android "bilinmeyen kaynak" diye soracak → izin ver.
 3. Kur ve aç.
 
@@ -135,7 +155,7 @@ sudo apt-get install aapt apksigner android-sdk-build-tools android-sdk-platform
 curl -o /opt/androidtools/dalvik-dx.jar \
   https://repo1.maven.org/maven2/com/jakewharton/android/repackaged/dalvik-dx/16.0.1/dalvik-dx-16.0.1.jar
 
-./android/build.sh          # -> android/out/icimden.apk
+./android/build.sh          # -> android/out/from-within.apk
 ```
 
 APK, uygulamayı `file://` yerine `https://havin.local/` sanal adresinden sunar

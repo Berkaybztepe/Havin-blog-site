@@ -58,7 +58,7 @@ export function modal({ title, body, actions = [], wide = false, onClose }) {
   const card = el('div', { class: `modal-card ${wide ? 'modal-card--wide' : ''}`, role: 'dialog', 'aria-modal': 'true' },
     el('div', { class: 'modal-head' },
       el('h2', {}, title || ''),
-      el('button', { class: 'modal-x', type: 'button', 'aria-label': 'Kapat', onClick: close }, '×')),
+      el('button', { class: 'modal-x', type: 'button', 'aria-label': 'Close', onClick: close }, '×')),
     el('div', { class: 'modal-body' }, body),
     btns.length ? el('div', { class: 'modal-foot' }, btns) : null);
 
@@ -71,13 +71,13 @@ export function modal({ title, body, actions = [], wide = false, onClose }) {
   return { close, card };
 }
 
-export function confirmDialog(title, message, confirmLabel = 'Evet') {
+export function confirmDialog(title, message, confirmLabel = 'Yes') {
   return new Promise((resolve) => {
     modal({
       title,
       body: el('p', { class: 'muted' }, message),
       actions: [
-        { label: 'Vazgeç', onClick: () => { resolve(false); } },
+        { label: 'Cancel', onClick: () => { resolve(false); } },
         { label: confirmLabel, kind: 'danger', onClick: () => { resolve(true); } },
       ],
       onClose: () => resolve(false),
@@ -86,29 +86,35 @@ export function confirmDialog(title, message, confirmLabel = 'Evet') {
 }
 
 // --- tarih -----------------------------------------------------------------
-const TR_DAYS = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
-const TR_MONTHS = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
-  'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'];
 
 export const todayISO = () => {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 };
 
-export function formatDateTR(iso, withDay = true) {
+export function formatDate(iso, withDay = true) {
   if (!iso) return '';
   const [y, m, d] = iso.split('-').map(Number);
   const date = new Date(y, m - 1, d);
-  const day = withDay ? `${TR_DAYS[date.getDay()]}, ` : '';
-  return `${day}${d} ${TR_MONTHS[m - 1]} ${y}`;
+  const day = withDay ? `${DAYS[date.getDay()]}, ` : '';
+  return `${day}${d} ${MONTHS[m - 1]} ${y}`;
 }
 
-export function monthNameTR(monthIndex) { return TR_MONTHS[monthIndex]; }
-export const TR_DAY_SHORT = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
+export function monthName(monthIndex) { return MONTHS[monthIndex]; }
 
-/** Haftanin pazartesiden basladigi dizin (0=Pzt). */
+// Weeks start on Monday — the planner is built around that.
+export const DAY_SHORT = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+/** Index within a Monday-first week (0 = Monday). */
 export const mondayIndex = (jsDay) => (jsDay + 6) % 7;
 
-/** Turkce'ye dogru buyuk/kucuk harf: i -> İ, I -> ı */
-export const upperTR = (s) => String(s || '').toLocaleUpperCase('tr-TR');
-export const lowerTR = (s) => String(s || '').toLocaleLowerCase('tr-TR');
+/** Mood shown as a quiet colour dot plus its word — no emoji. */
+export function moodTag(mood, { tag = 'span', cls = 'chip' } = {}) {
+  if (!mood) return null;
+  return el(tag, { class: cls },
+    el('span', { class: 'mood-dot', style: { '--dot': mood.color } }),
+    mood.label);
+}

@@ -1,14 +1,14 @@
 {
-  "name": "içimden",
-  "short_name": "içimden",
-  "description": "Kişisel, şifreli günlük.",
+  "name": "from within",
+  "short_name": "from within",
+  "description": "A private, encrypted diary.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#f7f5f1",
   "theme_color": "#f7f5f1",
-  "lang": "tr",
+  "lang": "en",
   "dir": "ltr",
   "icons": [
     { "src": "assets/img/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },

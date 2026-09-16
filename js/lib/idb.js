@@ -12,7 +12,7 @@ export function openDB() {
     try {
       req = indexedDB.open(DB_NAME, DB_VERSION);
     } catch (e) {
-      reject(new Error('Tarayici deposu acilamadi: ' + e.message));
+      reject(new Error('Browser storage could not be opened: ' + e.message));
       return;
     }
     req.onupgradeneeded = () => {
@@ -24,8 +24,8 @@ export function openDB() {
       _db.onversionchange = () => { _db.close(); _db = null; };
       resolve(_db);
     };
-    req.onerror = () => reject(req.error || new Error('Tarayici deposu acilamadi'));
-    req.onblocked = () => reject(new Error('Baska bir sekme siteyi kilitliyor. Diger sekmeleri kapat.'));
+    req.onerror = () => reject(req.error || new Error('Browser storage could not be opened'));
+    req.onblocked = () => reject(new Error('Another tab is locking the site. Close the other tabs.'));
   });
 }
 
@@ -83,7 +83,7 @@ export async function idbClearAll() {
 
 export class QuotaError extends Error {
   constructor() {
-    super('Cihazinda yer kalmadi. Ayarlar > Yedekleme bolumunden yedek alip eski fotograflari silebilirsin.');
+    super('Your device is out of space. Take a backup from Settings and delete old photos.');
     this.name = 'QuotaError';
   }
 }

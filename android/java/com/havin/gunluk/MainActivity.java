@@ -37,6 +37,12 @@ import java.util.Map;
 public class MainActivity extends Activity {
 
     private static final String HOST = "havin.local";
+
+    /** Gomulu oynaticinin ihtiyac duydugu alan adlari — bunlar WebView icinde kalir. */
+    private static final String[] EMBED_HOSTS = {
+        "youtube.com", "youtube-nocookie.com", "ytimg.com",
+        "googlevideo.com", "google.com", "gstatic.com",
+    };
     private static final String ORIGIN = "https://" + HOST + "/";
     private static final int REQ_FILE = 1001;
     private static final int REQ_SAVE = 1002;
@@ -117,17 +123,25 @@ public class MainActivity extends Activity {
                 return null;
             }
 
+            /**
+             * Gomulu oynatici WebView'in ICINDE kalmali. Yaziya ilistirilen sarki
+             * bir YouTube iframe'i; bunu disari atsaydik sarki uygulamada hic calmazdi.
+             *
+             * Not: isForMainFrame() ile ana cerceve ayrimi yapan surum API 24'te geldi,
+             * biz API 23'e derliyoruz. Bu yuzden burada yalnizca gomulu oynaticiya izin
+             * veriyoruz; gercek dis baglantilari JavaScript tarafi AndroidBridge.openExternal
+             * ile aciyor (her Android surumunde ayni sekilde calisiyor).
+             */
             @Override
+            @SuppressWarnings("deprecation")
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 Uri u = Uri.parse(url);
-                if (HOST.equals(u.getHost())) return false;
-                // Dis baglantilar (YouTube vb.) tarayicida acilsin
-                try {
-                    startActivity(new Intent(Intent.ACTION_VIEW, u));
-                } catch (ActivityNotFoundException e) {
-                    Toast.makeText(MainActivity.this, "Bağlantı açılamadı", Toast.LENGTH_SHORT).show();
+                String host = u.getHost() == null ? "" : u.getHost();
+                if (HOST.equals(host)) return false;
+                for (String allowed : EMBED_HOSTS) {
+                    if (host.equals(allowed) || host.endsWith("." + allowed)) return false;
                 }
-                return true;
+                return openExternally(u);
             }
         });
 
@@ -159,6 +173,16 @@ public class MainActivity extends Activity {
         });
 
         web.loadUrl(ORIGIN + "index.html");
+    }
+
+    private boolean openExternally(Uri u) {
+        try {
+            startActivity(new Intent(Intent.ACTION_VIEW, u));
+            return true;
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(this, "Could not open the link", Toast.LENGTH_SHORT).show();
+            return false;
+        }
     }
 
     private WebResourceResponse serveAsset(String path) {
@@ -194,6 +218,14 @@ public class MainActivity extends Activity {
     private class Bridge {
         @JavascriptInterface
         public boolean isAndroidApp() { return true; }
+
+        /** Gercek dis baglantilari sistem tarayicisinda acar. */
+        @JavascriptInterface
+        public void openExternal(final String url) {
+            final Uri u = Uri.parse(url);
+            if (!"http".equals(u.getScheme()) && !"https".equals(u.getScheme())) return;
+            runOnUiThread(new Runnable() { public void run() { openExternally(u); } });
+        }
 
         @JavascriptInterface
         public void saveFile(final String fileName, final String base64) {

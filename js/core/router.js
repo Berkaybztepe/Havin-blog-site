@@ -11,11 +11,11 @@ export function setHost(node) { host = node; }
 export function setNavigateHook(fn) { onNavigate = fn; }
 
 export function parseHash() {
-  const raw = (location.hash || '#/gunluk').replace(/^#\/?/, '');
+  const raw = (location.hash || '#/diary').replace(/^#\/?/, '');
   const [path, query] = raw.split('?');
   const parts = path.split('/').filter(Boolean);
   const params = Object.fromEntries(new URLSearchParams(query || ''));
-  return { name: parts[0] || 'gunluk', rest: parts.slice(1), params };
+  return { name: parts[0] || 'diary', rest: parts.slice(1), params };
 }
 
 export function navigate(to, replace = false) {
@@ -26,7 +26,7 @@ export function navigate(to, replace = false) {
 export async function render() {
   if (!host) return;
   const { name, rest, params } = parseHash();
-  const view = routes.get(name) || routes.get('gunluk');
+  const view = routes.get(name) || routes.get('diary');
   if (current && current.unmount) { try { await current.unmount(); } catch {} }
   host.replaceChildren();
   host.scrollTop = 0;
@@ -36,10 +36,10 @@ export async function render() {
   try {
     await view.mount(host, { rest, params });
   } catch (e) {
-    console.error('Görünüm açılamadı:', e);
+    console.error('View failed to open:', e);
     host.replaceChildren(Object.assign(document.createElement('div'), {
       className: 'card',
-      textContent: 'Bu bölüm açılamadı: ' + (e && e.message || e),
+      textContent: 'This section could not open: ' + (e && e.message || e),
     }));
   }
 }

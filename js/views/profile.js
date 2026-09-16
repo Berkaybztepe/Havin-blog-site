@@ -8,10 +8,10 @@ import { personalSuggestions } from '../ai/features.js';
 import { uuid } from '../core/crypto.js';
 
 const PROMPTS = [
-  { key: 'now', label: 'şu an', ph: 'şu sıralar neyin içindesin?' },
-  { key: 'about', label: 'kendimi tanıtırsam', ph: 'kendini nasıl anlatırsın? kesin cümleler kurmak zorunda değilsin.' },
-  { key: 'discovering', label: 'kendimde keşfettiğim şeyler', ph: 'son zamanlarda kendinle ilgili ne fark ettin?' },
-  { key: 'values', label: 'benim için önemli olan', ph: 'neye değer veriyorsun? neyi taşımak istiyorsun?' },
+  { key: 'now', label: 'right now', ph: 'what are you in the middle of these days?' },
+  { key: 'about', label: 'if I introduce myself', ph: 'how would you describe yourself? you do not have to be certain.' },
+  { key: 'discovering', label: 'things I have noticed about myself', ph: 'what have you noticed about yourself lately?' },
+  { key: 'values', label: 'what matters to me', ph: 'what do you value? what do you want to carry with you?' },
 ];
 
 let scope = null;
@@ -30,7 +30,7 @@ const view = {
     if (profile.photoId) {
       try {
         const blob = await repo.loadImage(profile.photoId);
-        if (blob) photo = el('img', { class: 'profile-photo', src: scope.create(blob), alt: 'profil fotoğrafı' });
+        if (blob) photo = el('img', { class: 'profile-photo', src: scope.create(blob), alt: 'profile photo' });
       } catch {}
     }
     const photoInput = el('input', { type: 'file', accept: 'image/*', class: 'hidden' });
@@ -42,12 +42,12 @@ const view = {
         if (profile.photoId) await repo.deleteImage(profile.photoId);
         const id = await repo.saveImage(bytes, mime);
         await repo.saveProfile({ photoId: id });
-        toast('Fotoğraf güncellendi.');
+        toast('Photo updated.');
         await view.mount(host);
-      } catch (e) { toast('Yüklenemedi: ' + e.message, 'err'); }
+      } catch (e) { toast('Could not load: ' + e.message, 'err'); }
     });
 
-    const nameInput = el('input', { class: 'input', placeholder: 'adın', value: profile.name });
+    const nameInput = el('input', { class: 'input', placeholder: 'your name', value: profile.name });
 
     // --- serbest metin alanlari ---
     const fields = {};
@@ -62,7 +62,7 @@ const view = {
       const patch = { name: nameInput.value.trim() };
       for (const p of PROMPTS) patch[p.key] = fields[p.key].value;
       await repo.saveProfile(patch);
-      toast('Kaydedildi.');
+      toast('Saved.');
     };
 
     // --- gelisim alanlari ---
@@ -71,11 +71,11 @@ const view = {
     const drawGrowth = () => {
       clear(growthBox);
       if (!growth.length) {
-        growthBox.append(el('p', { class: 'muted' }, 'Henüz bir alan eklemedin.'));
+        growthBox.append(el('p', { class: 'muted' }, 'You have not added an area yet.'));
         return;
       }
       for (const g of growth) {
-        const note = el('textarea', { class: 'textarea', style: { minHeight: '64px' }, placeholder: 'bu konuda ne yapıyorum, ne yapabilirim?' });
+        const note = el('textarea', { class: 'textarea', style: { minHeight: '64px' }, placeholder: 'what am I doing about this, what could I do?' });
         note.value = g.note || '';
         note.addEventListener('change', async () => {
           g.note = note.value;
@@ -87,24 +87,24 @@ const view = {
             el('button', {
               class: 'btn btn--sm btn--ghost',
               onClick: async () => {
-                if (!await confirmDialog('Kaldır', `"${g.title}" kaldırılsın mı?`, 'kaldır')) return;
+                if (!await confirmDialog('Remove', `Remove "${g.title}"?`, 'remove')) return;
                 growth = growth.filter((x) => x.id !== g.id);
                 await repo.saveProfile({ growth });
                 drawGrowth();
               },
-            }, 'kaldır')),
+            }, 'remove')),
           note));
       }
     };
     drawGrowth();
 
     const addGrowth = () => {
-      const inp = el('input', { class: 'input', placeholder: 'örn. daha düzenli okumak' });
+      const inp = el('input', { class: 'input', placeholder: 'e.g. read more regularly' });
       modal({
-        title: 'gelişim alanı ekle',
+        title: 'add an area',
         body: inp,
-        actions: [{ label: 'vazgeç' }, {
-          label: 'ekle', kind: 'primary',
+        actions: [{ label: 'cancel' }, {
+          label: 'add', kind: 'primary',
           onClick: async () => {
             const t = inp.value.trim();
             if (!t) return false;
@@ -130,19 +130,19 @@ const view = {
           el('button', {
             class: 'btn btn--sm',
             onClick: async () => {
-              if (pins.some((p) => p.title === s.t)) { toast('Zaten panonda.'); return; }
+              if (pins.some((p) => p.title === s.t)) { toast('Already on your board.'); return; }
               await repo.savePin({ id: uuid(), title: s.t, desc: s.d, cat: s.c, date: todayISO() });
               pins = await repo.listPins();
               drawPins();
-              toast('Panona eklendi.');
+              toast('Pinned to your board.');
             },
-          }, 'panoma ekle')));
+          }, 'pin to my board')));
       }
     };
     drawSuggestions(pickSuggestions(3));
 
     const catFilter = el('div', { class: 'tag-list', style: { marginBottom: '12px' } },
-      el('button', { class: 'chip-btn is-on', dataset: { c: '' } }, 'karışık'),
+      el('button', { class: 'chip-btn is-on', dataset: { c: '' } }, 'mixed'),
       CATEGORIES.map((c) => el('button', { class: 'chip-btn', dataset: { c: c.id } }, c.label)));
     catFilter.addEventListener('click', (e) => {
       const b = e.target.closest('.chip-btn');
@@ -154,15 +154,15 @@ const view = {
 
     // --- pano (pinlediklerim) ---
     const pinBox = el('div', {});
-    const STATUSES = [['yapacagim', 'yapacağım'], ['yapiyorum', 'yapıyorum'], ['yaptim', 'yaptım']];
+    const STATUSES = [['yapacagim', 'will do'], ['yapiyorum', 'doing'], ['yaptim', 'done']];
     const drawPins = () => {
       clear(pinBox);
       if (!pins.length) {
-        pinBox.append(el('p', { class: 'muted' }, 'Henüz bir şey pinlemedin. Yukarıdaki önerilerden beğendiğini ekle.'));
+        pinBox.append(el('p', { class: 'muted' }, 'You have not pinned anything yet. Add one you like from the suggestions above.'));
         return;
       }
       for (const p of pins) {
-        const note = el('textarea', { class: 'textarea', style: { minHeight: '60px' }, placeholder: 'ne yaptım, ne yapabilirim?' });
+        const note = el('textarea', { class: 'textarea', style: { minHeight: '60px' }, placeholder: 'what I did, what I could do' });
         note.value = p.note || '';
         note.addEventListener('change', async () => { await repo.savePin({ ...p, note: note.value }); });
 
@@ -182,7 +182,7 @@ const view = {
             el('button', {
               class: 'btn btn--sm btn--ghost',
               onClick: async () => {
-                if (!await confirmDialog('Panodan kaldır', `"${p.title}" kaldırılsın mı?`, 'kaldır')) return;
+                if (!await confirmDialog('Unpin', `Remove "${p.title}"?`, 'remove')) return;
                 await repo.deletePin(p.id);
                 pins = await repo.listPins();
                 drawPins();
@@ -200,44 +200,44 @@ const view = {
     const aiBtn = el('button', {
       class: 'btn btn--sm',
       onClick: async () => {
-        if (!settings.apiKey) { toast('Bunun için Ayarlar\'dan API anahtarı eklemen gerek.', 'warn'); return; }
+        if (!settings.apiKey) { toast('You need to add an API key in Settings for this.', 'warn'); return; }
         aiBtn.disabled = true;
-        clear(aiBox).append(el('div', { class: 'loading-row' }, el('span', { class: 'spinner' }), 'düşünüyor…'));
+        clear(aiBox).append(el('div', { class: 'loading-row' }, el('span', { class: 'spinner' }), 'thinking…'));
         try {
           const text = await personalSuggestions(settings.apiKey, {
             growth: growth.map((g) => g.title).join(', '),
             about: fields.about.value,
           });
-          clear(aiBox).append(el('div', { class: 'support-reply' }, text || '(yanıt boş geldi)'));
+          clear(aiBox).append(el('div', { class: 'support-reply' }, text || '(the reply came back empty)'));
         } catch (e) {
-          clear(aiBox).append(el('div', { class: 'note note--warn' }, e.message || 'Alınamadı.'));
+          clear(aiBox).append(el('div', { class: 'note note--warn' }, e.message || 'Could not fetch.'));
         } finally { aiBtn.disabled = false; }
       },
-    }, 'bana özel öneri iste');
+    }, 'ask for suggestions for me');
 
     clear(host).append(
       el('div', { class: 'card' },
         el('div', { class: 'profile-head' },
           photo,
           el('div', { style: { flex: '1 1 220px' } },
-            el('label', { class: 'field__label' }, 'adım'), nameInput,
+            el('label', { class: 'field__label' }, 'my name'), nameInput,
             el('button', { class: 'btn btn--sm btn--ghost', style: { marginTop: '8px' }, onClick: () => photoInput.click() },
-              'fotoğraf seç'))),
+              'choose a photo'))),
         photoInput,
         el('div', { style: { marginTop: '18px' } }, fieldCards),
         el('div', { class: 'btn-row btn-row--end' },
-          el('button', { class: 'btn btn--primary', onClick: saveProfile }, 'kaydet'))),
+          el('button', { class: 'btn btn--primary', onClick: saveProfile }, 'save'))),
 
       el('div', { class: 'card' },
         el('div', { class: 'card__head' },
-          el('h3', {}, 'gelişim alanlarım'),
-          el('button', { class: 'btn btn--sm btn--primary', onClick: addGrowth }, '+ alan ekle')),
-        el('p', { class: 'muted' }, 'geliştirmek istediğin başlıkları yaz; altına ne yaptığını not et.'),
+          el('h3', {}, 'what I want to grow in'),
+          el('button', { class: 'btn btn--sm btn--primary', onClick: addGrowth }, '+ add an area')),
+        el('p', { class: 'muted' }, 'write the things you want to grow in, and note underneath what you are doing about them.'),
         growthBox,
         el('div', { style: { marginTop: '14px' } }, aiBtn, aiBox)),
 
       el('div', { class: 'card' },
-        el('h3', {}, 'bugünün önerisi'),
+        el('h3', {}, 'today\'s suggestion'),
         el('div', { class: 'suggestion' },
           el('div', { class: 'suggestion__cat' }, categoryOf(daily.c).label),
           el('div', { class: 'suggestion__title' }, daily.t),
@@ -245,28 +245,28 @@ const view = {
           el('button', {
             class: 'btn btn--sm',
             onClick: async () => {
-              if (pins.some((p) => p.title === daily.t)) { toast('Zaten panonda.'); return; }
+              if (pins.some((p) => p.title === daily.t)) { toast('Already on your board.'); return; }
               await repo.savePin({ id: uuid(), title: daily.t, desc: daily.d, cat: daily.c, date: todayISO() });
               pins = await repo.listPins();
               drawPins();
-              toast('Panona eklendi.');
+              toast('Pinned to your board.');
             },
-          }, 'panoma ekle'))),
+          }, 'pin to my board'))),
 
       el('div', { class: 'card' },
         el('div', { class: 'card__head' },
-          el('h3', {}, 'kültürlenme önerileri'),
+          el('h3', {}, 'things to try'),
           el('button', {
             class: 'btn btn--sm',
             onClick: () => drawSuggestions(pickSuggestions(3, shownCat || null)),
-          }, 'başka göster')),
-        el('p', { class: 'muted' }, `${SUGGESTIONS.length} öneri arasından seçiyorum. bir kategori seçebilirsin.`),
+          }, 'show me others')),
+        el('p', { class: 'muted' }, `picking from ${SUGGESTIONS.length} suggestions. you can choose a category.`),
         catFilter,
         suggBox),
 
       el('div', { class: 'card' },
-        el('h3', {}, 'panom'),
-        el('p', { class: 'muted' }, 'yapmak istediklerin ve haklarında yazdıkların.'),
+        el('h3', {}, 'my board'),
+        el('p', { class: 'muted' }, 'the things you want to do, and what you wrote about them.'),
         pinBox));
   },
 

@@ -1,6 +1,6 @@
 // Kenar sutunu widget'lari — eski Blogger/kellycornerblog hissi.
 
-import { el, clear, todayISO, formatDateTR, monthNameTR, TR_DAY_SHORT, mondayIndex } from '../core/dom.js';
+import { el, clear, todayISO, formatDate, monthName, DAY_SHORT, mondayIndex } from '../core/dom.js';
 import * as repo from '../core/repo.js';
 import { dailyAffirmation, dailyRitual, MOODS } from '../data/affirmations.js';
 import { parseYouTube, youtubeFrame } from '../views/media.js';
@@ -17,11 +17,11 @@ function wSaat() {
   const tick = () => {
     const d = new Date();
     time.textContent = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-    date.textContent = formatDateTR(todayISO());
+    date.textContent = formatDate(todayISO());
   };
   tick();
   const iv = setInterval(tick, 20000);
-  const box = widgetBox('şu an', time, date);
+  const box = widgetBox('right now', time, date);
   box._stop = () => clearInterval(iv);
   return box;
 }
@@ -30,9 +30,9 @@ function wSaat() {
 async function wOlumlama() {
   const mood = localStorage.getItem('havin.mood') || '';
   const a = dailyAffirmation(todayISO(), mood);
-  return widgetBox('bugünün cümlesi',
+  return widgetBox('today\'s line',
     el('p', { style: { fontFamily: 'var(--font-head)', fontSize: '1.35rem', lineHeight: '1.35', margin: '0 0 8px' } }, a.t),
-    el('a', { class: 'btn btn--sm btn--ghost', href: '#/olumlama' }, 'devamı →'));
+    el('a', { class: 'btn btn--sm btn--ghost', href: '#/affirmations' }, 'more →'));
 }
 
 // --- kucuk takvim ---
@@ -44,6 +44,9 @@ async function wTakvim() {
   const offset = mondayIndex(first.getDay());
   const ix = repo.indexNow();
   const written = new Set(ix.posts.map((p) => p.date));
+  // Gune ait son yazinin ruh hali rengi, takvimde o gunu boyasin.
+  const moodByDate = {};
+  for (const p of ix.posts) if (p.mood && !moodByDate[p.date]) moodByDate[p.date] = p.mood;
 
   const cells = [];
   for (let i = 0; i < offset; i++) cells.push(el('div', {}));
@@ -58,13 +61,20 @@ async function wTakvim() {
         color: isToday ? 'var(--accent-ink)' : 'inherit',
         outline: written.has(iso) && !isToday ? '1px solid var(--accent)' : 'none',
       },
-      title: written.has(iso) ? 'bu gün yazmışsın' : '',
-    }, String(d)));
+      title: written.has(iso) ? 'you wrote on this day' : '',
+    },
+      String(d),
+      moodByDate[iso] && !isToday
+        ? el('span', {
+            class: 'week-mood',
+            style: { '--dot': (MOODS.find((m) => m.id === moodByDate[iso]) || {}).color || 'transparent' },
+          })
+        : null));
   }
 
-  return widgetBox(`${monthNameTR(month)} ${year}`,
+  return widgetBox(`${monthName(month)} ${year}`,
     el('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: '2px' } },
-      TR_DAY_SHORT.map((d) => el('div', { class: 'muted', style: { textAlign: 'center', fontSize: '.68rem', fontWeight: '700' } }, d)),
+      DAY_SHORT.map((d) => el('div', { class: 'muted', style: { textAlign: 'center', fontSize: '.68rem', fontWeight: '700' } }, d)),
       cells));
 }
 
@@ -82,14 +92,16 @@ function wRuhHali() {
         // gunun cumlesini ruh haline gore tazele
         renderSidebar(document.getElementById('sidebar'));
       },
-    }, `${m.emoji} ${m.label}`)));
-  return widgetBox('bugün nasılsın', row);
+    },
+      el('span', { class: 'mood-dot', style: { '--dot': m.color } }),
+      m.label)));
+  return widgetBox('how are you today', row);
 }
 
 // --- su an izliyorum ---
 async function wIzliyorum(profile) {
   if (!profile.currentlyWatching) return null;
-  return widgetBox('şu an izliyorum',
+  return widgetBox('currently watching',
     el('p', { style: { margin: 0 } }, profile.currentlyWatching));
 }
 
@@ -97,7 +109,7 @@ async function wIzliyorum(profile) {
 async function wPlaylist(profile) {
   const ref = parseYouTube(profile.playlistUrl);
   if (!ref) return null;
-  return widgetBox('çalma listem', youtubeFrame(ref));
+  return widgetBox('my playlist', youtubeFrame(ref));
 }
 
 // --- sayac ---
@@ -105,15 +117,15 @@ async function wSayac(profile) {
   if (!profile.counterDate) return null;
   const then = new Date(profile.counterDate);
   const days = Math.floor((Date.now() - then.getTime()) / 86400000);
-  return widgetBox(profile.counterLabel || 'sayaç',
+  return widgetBox(profile.counterLabel || 'counter',
     el('div', { style: { textAlign: 'center' } },
       el('div', { style: { fontFamily: 'var(--font-head)', fontSize: '2.8rem', lineHeight: '1' } }, String(Math.abs(days))),
-      el('div', { class: 'muted' }, days >= 0 ? 'gün geçti' : 'gün kaldı')));
+      el('div', { class: 'muted' }, days >= 0 ? 'days since' : 'days to go')));
 }
 
 // --- kucuk toren ---
 function wToren() {
-  return widgetBox('bugün için küçük bir tören',
+  return widgetBox('a small ceremony for today',
     el('p', { style: { margin: 0, fontSize: '.95rem' } }, dailyRitual(todayISO())));
 }
 
@@ -123,9 +135,9 @@ const REGISTRY = {
 };
 
 export const WIDGET_LABELS = {
-  saat: 'saat & tarih', olumlama: 'bugünün cümlesi', takvim: 'mini takvim',
-  ruhhali: 'ruh hâli', izliyorum: 'şu an izliyorum', playlist: 'çalma listem',
-  sayac: 'sayaç', toren: 'günün töreni',
+  saat: 'clock & date', olumlama: 'today\'s line', takvim: 'mini calendar',
+  ruhhali: 'mood', izliyorum: 'currently watching', playlist: 'my playlist',
+  sayac: 'counter', toren: 'today\'s ceremony',
 };
 
 let stoppers = [];

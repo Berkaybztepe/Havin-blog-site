@@ -3,7 +3,7 @@
 import { el, $, clear, toast } from './core/dom.js';
 import * as session from './core/session.js';
 import * as repo from './core/repo.js';
-import { defineRoute, setHost, setNavigateHook, startRouter, navigate, unmountCurrent } from './core/router.js';
+import { defineRoute, setHost, setNavigateHook, startRouter, navigate, unmountCurrent, render, parseHash } from './core/router.js';
 import { mountLock } from './views/lock.js';
 import { renderSidebar } from './widgets/sidebar.js';
 import { applyLook, readStoredLook, lookFromSettings } from './core/look.js';
@@ -18,13 +18,13 @@ import settings from './views/settings.js';
 
 // --- gezinme ---------------------------------------------------------------
 const NAV = [
-  { id: 'gunluk',   label: 'günlük' },
-  { id: 'profil',   label: 'profilim' },
-  { id: 'olumlama', label: 'olumlama' },
-  { id: 'pano',     label: 'pano' },
-  { id: 'plan',     label: 'planlayıcı' },
-  { id: 'beden',    label: 'beden & mutfak' },
-  { id: 'ayarlar',  label: 'ayarlar' },
+  { id: 'diary',   label: 'diary' },
+  { id: 'profile',   label: 'my profile' },
+  { id: 'affirmations', label: 'affirmations' },
+  { id: 'board',     label: 'board' },
+  { id: 'planner',     label: 'planner' },
+  { id: 'body',    label: 'body & kitchen' },
+  { id: 'settings',  label: 'settings' },
 ];
 
 function buildNav() {
@@ -32,6 +32,15 @@ function buildNav() {
   for (const item of NAV) {
     host.append(el('a', {
       class: 'nav__link', href: `#/${item.id}`, dataset: { route: item.id },
+      onClick: (e) => {
+        // Bir bolumun icinde derine inildiyse (ornegin bir yaziyi okurken)
+        // adres zaten #/diary oldugu icin tarayici hashchange uretmiyor ve
+        // menuye basmak hicbir sey yapmiyordu. Ayni rotaysa elle yeniliyoruz.
+        if (parseHash().name === item.id) {
+          e.preventDefault();
+          render();
+        }
+      },
     }, item.label));
   }
 }
@@ -48,9 +57,9 @@ async function enterApp() {
   applyLook(lookFromSettings(s));
   session.setAutoLockMinutes(s.autoLockMinutes);
 
-  $('#blog-title').textContent = s.blogTitle || 'içimden';
+  $('#blog-title').textContent = s.blogTitle || 'from within';
   $('#blog-tagline').textContent = s.blogTagline || '';
-  document.title = (s.blogTitle || 'içimden');
+  document.title = (s.blogTitle || 'from within');
 
   $('#lock-screen').classList.add('hidden');
   $('#app').classList.remove('hidden');
@@ -61,7 +70,7 @@ async function enterApp() {
 
   await renderSidebar($('#sidebar'));
 
-  if (!location.hash) navigate('gunluk', true);
+  if (!location.hash) navigate('diary', true);
   startRouter();
 }
 
@@ -87,14 +96,28 @@ async function boot() {
 
   if (!window.isSecureContext) {
     $('#lock-card').replaceChildren(el('div', { class: 'note note--danger' },
-      el('p', {}, el('strong', {}, 'Bu sayfa güvenli bağlantıda açılmamış.')),
-      el('p', {}, 'Şifreleme çalışmıyor. Siteyi GitHub Pages adresinden ya da uygulama olarak aç; ' +
-        'dosyaya çift tıklayarak açmak bu yüzden desteklenmiyor.')));
+      el('p', {}, el('strong', {}, 'This page was not opened over a secure connection.')),
+      el('p', {}, 'Encryption does not work here. Open the site from its GitHub Pages address or as the app; ' +
+        'that is why double-clicking the file is not supported.')));
     return;
   }
 
+  // APK icinde: gercek dis baglantilar (YouTube arama kisayollari gibi) sistem
+  // tarayicisinda acilsin. Gomulu oynaticiya dokunmuyoruz — o WebView'in icinde
+  // kalmali, yoksa yaziya ilistirilen sarki uygulamada hic calmaz.
+  if (inApp) {
+    document.addEventListener('click', (e) => {
+      const a = e.target.closest && e.target.closest('a[href]');
+      if (!a) return;
+      const href = a.getAttribute('href') || '';
+      if (!/^https?:\/\//i.test(href)) return;       // ic baglantilar (#/...) dokunulmaz
+      e.preventDefault();
+      try { window.AndroidBridge.openExternal(a.href); } catch {}
+    });
+  }
+
   session.watchActivity();
-  session.onLockChange((locked) => { if (locked) { showLock(); toast('Günlük kilitlendi.'); } });
+  session.onLockChange((locked) => { if (locked) { showLock(); toast('Diary locked.'); } });
 
   $('#lock-now').addEventListener('click', () => session.lock());
 
@@ -108,14 +131,14 @@ boot().catch((e) => {
   console.error(e);
   const card = $('#lock-card');
   if (card) card.replaceChildren(el('div', { class: 'note note--danger' },
-    'Uygulama açılamadı: ' + (e && e.message || e)));
+    'The app could not start: ' + (e && e.message || e)));
 });
 
 // Gorunumleri kaydet
-defineRoute('gunluk', diary);
-defineRoute('profil', profile);
-defineRoute('olumlama', affirmations);
-defineRoute('pano', board);
-defineRoute('plan', planner);
-defineRoute('beden', body);
-defineRoute('ayarlar', settings);
+defineRoute('diary', diary);
+defineRoute('profile', profile);
+defineRoute('affirmations', affirmations);
+defineRoute('board', board);
+defineRoute('planner', planner);
+defineRoute('body', body);
+defineRoute('settings', settings);
